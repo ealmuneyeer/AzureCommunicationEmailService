@@ -18,7 +18,7 @@ namespace AzureCommunicationEmailService
 
         private List<CustomHeader> _customHeaders;
 
-        List<string> _attachmentPaths;
+        private List<string> _attachmentPaths;
 
         private EmailImportance? _importance = null;
 

@@ -35,7 +35,7 @@
             this.lblAttachmentsSize = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.lbAttachmentsCount = new System.Windows.Forms.Label();
+            this.lblAttachmentsCount = new System.Windows.Forms.Label();
             this.dgAttachments = new System.Windows.Forms.DataGridView();
             this.attachFilePath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.attachType = new System.Windows.Forms.DataGridViewComboBoxColumn();
@@ -103,7 +103,7 @@
             this.grpAttachments.Controls.Add(this.lblAttachmentsSize);
             this.grpAttachments.Controls.Add(this.label4);
             this.grpAttachments.Controls.Add(this.label3);
-            this.grpAttachments.Controls.Add(this.lbAttachmentsCount);
+            this.grpAttachments.Controls.Add(this.lblAttachmentsCount);
             this.grpAttachments.Controls.Add(this.dgAttachments);
             this.grpAttachments.Controls.Add(this.btnAddAttachment);
             this.grpAttachments.Location = new System.Drawing.Point(12, 518);
@@ -140,14 +140,14 @@
             this.label3.TabIndex = 13;
             this.label3.Text = "Total count:";
             // 
-            // lbAttachmentsCount
+            // lblAttachmentsCount
             // 
-            this.lbAttachmentsCount.AutoSize = true;
-            this.lbAttachmentsCount.Location = new System.Drawing.Point(225, 30);
-            this.lbAttachmentsCount.Name = "lbAttachmentsCount";
-            this.lbAttachmentsCount.Size = new System.Drawing.Size(17, 20);
-            this.lbAttachmentsCount.TabIndex = 12;
-            this.lbAttachmentsCount.Text = "0";
+            this.lblAttachmentsCount.AutoSize = true;
+            this.lblAttachmentsCount.Location = new System.Drawing.Point(225, 30);
+            this.lblAttachmentsCount.Name = "lblAttachmentsCount";
+            this.lblAttachmentsCount.Size = new System.Drawing.Size(17, 20);
+            this.lblAttachmentsCount.TabIndex = 12;
+            this.lblAttachmentsCount.Text = "0";
             // 
             // dgAttachments
             // 
@@ -485,7 +485,7 @@
         private Button btnAddAttachment;
         private DataGridView dgAttachments;
         private GroupBox grpAttachments;
-        private Label lbAttachmentsCount;
+        private Label lblAttachmentsCount;
         private GroupBox grpBody;
         private GroupBox grpReceipents;
         private Label lblAttachmentsSize;

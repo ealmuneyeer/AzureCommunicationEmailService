@@ -28,7 +28,7 @@ namespace AzureCommunicationEmailService
         private const int CUSTOM_HEADER_VALUE_COL_INDEX = 1;
 
         private System.Timers.Timer _checkMessageStatusTimer;
-        private ConcurrentDictionary<string, DateTime> _messageIds = new ConcurrentDictionary<string, DateTime>();
+        private ConcurrentDictionary<string, DateTime> _messageIds = new ConcurrentDictionary<string, DateTime>(); //Key: Message ID, value: when to check for update
         private EmailClient _emailClient = null;
 
         public frmMain()
@@ -50,6 +50,7 @@ namespace AzureCommunicationEmailService
             FillReceipents(configWrapper.CC, RECEIPEINT_TYPE_CC);
             FillReceipents(configWrapper.BCC, RECEIPEINT_TYPE_BCC);
             FillReceipents(configWrapper.ReplyTo, RECEIPEINT_TYPE_REPLY_TO);
+
             FillAttachments(configWrapper.Attachments);
 
             if (configWrapper.Importance != null)
@@ -57,21 +58,11 @@ namespace AzureCommunicationEmailService
                 cmbImportance.Text = configWrapper.Importance.ToString();
             }
 
-            foreach (var customHeader in configWrapper.CustomHeaders)
-            {
-                DataGridViewRow row = new DataGridViewRow();
-                row.CreateCells(dgCustomHeaders);
-
-                row.Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value = customHeader.Name;
-                row.Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value = customHeader.Value;
-
-                dgCustomHeaders.Rows.Add(row);
-            }
+            FillCustomHeaders(configWrapper.CustomHeaders);
 
             _checkMessageStatusTimer = new System.Timers.Timer(1000);
             _checkMessageStatusTimer.AutoReset = false;
             _checkMessageStatusTimer.Elapsed += CheckMessageStatusTimer_Elapsed;
-            _checkMessageStatusTimer.Start();
         }
 
         private void FillReceipents(List<ConfigEmailAddress> emails, string type)
@@ -100,6 +91,7 @@ namespace AzureCommunicationEmailService
                 return;
             }
 
+            //Fill email body
             EmailContent emailContent = new EmailContent(txtSubject.Text);
             if (chkIsHtmlBody.Checked)
             {
@@ -110,30 +102,32 @@ namespace AzureCommunicationEmailService
                 emailContent.PlainText = txtBody.Text + Environment.NewLine + $"Sent at: {DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss")} UTC";
             }
 
+
+            //Fill Receipent & Reply to
             List<EmailAddress> receipeintToEmailAddresses = new List<EmailAddress>();
             List<EmailAddress> receipeintCCEmailAddresses = new List<EmailAddress>();
             List<EmailAddress> receipeintBCCEmailAddresses = new List<EmailAddress>();
             List<EmailAddress> receipeintReplyToEmailAddresses = new List<EmailAddress>();
             for (int i = 0; i < dgReceipeints.RowCount - 1; i++)
             {
-                if (dgReceipeints.Rows[i] != null && !string.IsNullOrEmpty(dgReceipeints.Rows[i].Cells[0].ToString().Trim()))
+                if (dgReceipeints.Rows[i] != null && !string.IsNullOrEmpty(dgReceipeints.Rows[i].Cells[RECEIPEINT_EMAIL_COL_INDEX].ToString().Trim()))
                 {
                     string emailAddress = dgReceipeints.Rows[i].Cells[RECEIPEINT_EMAIL_COL_INDEX].Value.ToString();
                     string displayName = dgReceipeints.Rows[i].Cells[RECEIPEINT_DISPLAY_NAME_COL_INDEX].Value.ToString();
 
-                    if (dgReceipeints.Rows[i].Cells[2].Value.Equals(RECEIPEINT_TYPE_CC))
+                    if (dgReceipeints.Rows[i].Cells[RECEIPEINT_TYPE_COL_INDEX].Value.Equals(RECEIPEINT_TYPE_CC))
                     {
                         receipeintCCEmailAddresses.Add(new EmailAddress(emailAddress, displayName));
                     }
-                    else if (dgReceipeints.Rows[i].Cells[2].Value.Equals(RECEIPEINT_TYPE_BCC))
+                    else if (dgReceipeints.Rows[i].Cells[RECEIPEINT_TYPE_COL_INDEX].Value.Equals(RECEIPEINT_TYPE_BCC))
                     {
                         receipeintBCCEmailAddresses.Add(new EmailAddress(emailAddress, displayName));
                     }
-                    else if (dgReceipeints.Rows[i].Cells[2].Value.Equals(RECEIPEINT_TYPE_TO))
+                    else if (dgReceipeints.Rows[i].Cells[RECEIPEINT_TYPE_COL_INDEX].Value.Equals(RECEIPEINT_TYPE_TO))
                     {
                         receipeintToEmailAddresses.Add(new EmailAddress(emailAddress, displayName));
                     }
-                    else if (dgReceipeints.Rows[i].Cells[2].Value.Equals(RECEIPEINT_TYPE_REPLY_TO))
+                    else if (dgReceipeints.Rows[i].Cells[RECEIPEINT_TYPE_COL_INDEX].Value.Equals(RECEIPEINT_TYPE_REPLY_TO))
                     {
                         receipeintReplyToEmailAddresses.Add(new EmailAddress(emailAddress, displayName));
                     }
@@ -146,7 +140,8 @@ namespace AzureCommunicationEmailService
 
             receipeintReplyToEmailAddresses.ForEach(r => emailMessage.ReplyTo.Add(r));
 
-            // attacment
+
+            // Fill attacments
             long attachmentSize = long.Parse(lblAttachmentsSize.Text, System.Globalization.NumberStyles.AllowThousands);
             for (int i = 0; i < dgAttachments.RowCount; i++)
             {
@@ -161,7 +156,7 @@ namespace AzureCommunicationEmailService
 
                 emailMessage.Attachments.Add(emailAttachment);
             }
-            //End attachment
+            
 
             //Set email importance
             switch (cmbImportance.Text.ToLower())
@@ -185,9 +180,11 @@ namespace AzureCommunicationEmailService
                 emailMessage.CustomHeaders.Add(new EmailCustomHeader(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value.ToString()));
             }
 
+            //Sending email
             SendEmailResult sendEmailResult = _emailClient.Send(emailMessage);
             WriteTrace($"Email sent. Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {sendEmailResult.MessageId}");
 
+            //Add message ID to monitor list
             _messageIds.TryAdd(sendEmailResult.MessageId, DateTime.Now);
         }
 
@@ -283,6 +280,20 @@ namespace AzureCommunicationEmailService
             }
         }
 
+        private void FillCustomHeaders(List<CustomHeader> customHeaders)
+        {
+            foreach (var customHeader in customHeaders)
+            {
+                DataGridViewRow row = new DataGridViewRow();
+                row.CreateCells(dgCustomHeaders);
+
+                row.Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value = customHeader.Name;
+                row.Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value = customHeader.Value;
+
+                dgCustomHeaders.Rows.Add(row);
+            }
+        }
+
         private void dgAttachments_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
@@ -321,7 +332,7 @@ namespace AzureCommunicationEmailService
 
             if (e.RowCount > 0)
             {
-                lbAttachmentsCount.Text = senderGrid.RowCount.ToString();
+                lblAttachmentsCount.Text = senderGrid.RowCount.ToString();
 
                 int totalSize = 0;
                 for (int i = 0; i < senderGrid.RowCount; i++)
@@ -339,7 +350,7 @@ namespace AzureCommunicationEmailService
 
             if (e.RowCount > 0)
             {
-                lbAttachmentsCount.Text = (Convert.ToInt32(lbAttachmentsCount.Text) + 1).ToString();
+                lblAttachmentsCount.Text = (Convert.ToInt32(lblAttachmentsCount.Text) + 1).ToString();
 
                 lblAttachmentsSize.Text = (int.Parse(lblAttachmentsSize.Text, System.Globalization.NumberStyles.AllowThousands) + Int32.Parse(senderGrid.Rows[e.RowIndex].Cells[ATTACHMENTS_FILES_SIZE_COL_INDEX].Value.ToString(), System.Globalization.NumberStyles.AllowThousands)).ToString("N0");
             }
