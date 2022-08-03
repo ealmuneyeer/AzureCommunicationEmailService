@@ -23,20 +23,11 @@ namespace AzureCommunicationEmailService
         private const int ATTACHMENTS_FILE_PATH_COL_INDEX = 0;
         private const int ATTACHMENTS_TYPE_COL_INDEX = 1;
         private const int ATTACHMENTS_FILES_SIZE_COL_INDEX = 2;
-        //private const int ATTACHMENTS_DELETE_COL_INDEX = 3;
 
         private const int CUSTOM_HEADER_NAME_COL_INDEX = 0;
         private const int CUSTOM_HEADER_VALUE_COL_INDEX = 1;
 
-
-
-
-        //private static object _syncLock = new object();
-        //private static ReaderWriterLockSlim _readWriteLockSlim = new ReaderWriterLockSlim();
-
         private System.Timers.Timer _checkMessageStatusTimer;
-        //private List<string> _messageIds = new List<string>();
-        //private BlockingCollection<string> _messageIdList = new BlockingCollection<string>();
         private ConcurrentDictionary<string, DateTime> _messageIds = new ConcurrentDictionary<string, DateTime>();
         private EmailClient _emailClient = null;
 
