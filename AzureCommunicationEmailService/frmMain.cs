@@ -79,15 +79,53 @@ namespace AzureCommunicationEmailService
             }
         }
 
-        private void btnSendEmail_Click(object sender, EventArgs e)
+        private bool IsInputValid(out string errorMessage)
         {
-            WriteTrace("Start sending email...");
+            errorMessage = "";
 
+            //Validate email client
             if (_emailClient == null)
             {
                 MessageBox.Show("Please fill ACS connection string and select Initialize button", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 txtConnString.Focus();
-                WriteTrace("Sending failed. Email client is not initialized");
+                errorMessage = "Email client is not initialized";
+                return false;
+            }
+
+            //Validate attachment file exists and type selected
+            for (int i = 0; i < dgAttachments.RowCount; i++)
+            {
+                string filePath = dgAttachments.Rows[i].Cells[ATTACHMENTS_FILE_PATH_COL_INDEX].Value.ToString();
+                object? fileType = dgAttachments.Rows[i].Cells[ATTACHMENTS_TYPE_COL_INDEX].Value;
+
+                if (!File.Exists(filePath))
+                {
+                    errorMessage = $"Attachment file '{filePath}' does not exists!";
+                    MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dgAttachments.Focus();
+                    return false;
+                }
+                else if (fileType == null)
+                {
+                    errorMessage = $"Attachment file '{filePath}' type cannot be empty!";
+                    MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dgAttachments.Focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void btnSendEmail_Click(object sender, EventArgs e)
+        {
+            WriteTrace("Start sending email...");
+
+            string validationErrorMessage;
+
+            if (IsInputValid(out validationErrorMessage) == false)
+            {
+                WriteTrace("Sending fialed. " + validationErrorMessage);
                 return;
             }
 
@@ -95,13 +133,12 @@ namespace AzureCommunicationEmailService
             EmailContent emailContent = new EmailContent(txtSubject.Text);
             if (chkIsHtmlBody.Checked)
             {
-                emailContent.Html = txtBody.Text + $"<br/><hr/><div>Sent at: {DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss")} UTC</div>";
+                emailContent.Html = txtBody.Text + $"<br/><hr/><div>Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC</div>";
             }
             else
             {
-                emailContent.PlainText = txtBody.Text + Environment.NewLine + $"Sent at: {DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm:ss")} UTC";
+                emailContent.PlainText = txtBody.Text + Environment.NewLine + $"Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC";
             }
-
 
             //Fill Receipent & Reply to
             List<EmailAddress> receipeintToEmailAddresses = new List<EmailAddress>();
@@ -146,7 +183,8 @@ namespace AzureCommunicationEmailService
             for (int i = 0; i < dgAttachments.RowCount; i++)
             {
                 string filePath = dgAttachments.Rows[i].Cells[ATTACHMENTS_FILE_PATH_COL_INDEX].Value.ToString();
-                string attachmentName = System.IO.Path.GetFileName(filePath);
+                string attachmentName = Path.GetFileName(filePath);
+
                 EmailAttachmentType emailAttachmentType = new EmailAttachmentType(dgAttachments.Rows[i].Cells[ATTACHMENTS_TYPE_COL_INDEX].Value.ToString());
 
                 byte[] bytes = File.ReadAllBytes(filePath);
@@ -156,7 +194,6 @@ namespace AzureCommunicationEmailService
 
                 emailMessage.Attachments.Add(emailAttachment);
             }
-            
 
             //Set email importance
             switch (cmbImportance.Text.ToLower())
@@ -199,11 +236,11 @@ namespace AzureCommunicationEmailService
             }
             else
             {
-                txtTrace.AppendText($"[{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}] {message}{Environment.NewLine}");
+                txtTrace.AppendText($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {message}{Environment.NewLine}");
             }
         }
 
-        private void CheckMessageStatusTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void CheckMessageStatusTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             try
             {
@@ -358,8 +395,12 @@ namespace AzureCommunicationEmailService
 
         private void btnInitializeConnString_Click(object sender, EventArgs e)
         {
+            WriteTrace("Initializing email client...");
+
             if (string.IsNullOrEmpty(txtConnString.Text.Trim()))
             {
+                WriteTrace("Initialization failed. Please fill connection string");
+
                 MessageBox.Show("Please fill connection string", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtConnString.Focus();
                 return;
@@ -371,6 +412,8 @@ namespace AzureCommunicationEmailService
                 txtConnString.Enabled = false;
                 btnInitializeConnString.Enabled = false;
                 _checkMessageStatusTimer.Start();
+
+                WriteTrace("Initialization succeeded");
             }
         }
     }
