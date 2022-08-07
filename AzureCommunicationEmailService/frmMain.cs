@@ -149,8 +149,8 @@ namespace AzureCommunicationEmailService
             {
                 if (dgReceipeints.Rows[i] != null && !string.IsNullOrEmpty(dgReceipeints.Rows[i].Cells[RECEIPEINT_EMAIL_COL_INDEX].ToString().Trim()))
                 {
-                    string emailAddress = dgReceipeints.Rows[i].Cells[RECEIPEINT_EMAIL_COL_INDEX].Value.ToString();
-                    string displayName = dgReceipeints.Rows[i].Cells[RECEIPEINT_DISPLAY_NAME_COL_INDEX].Value.ToString();
+                    string emailAddress = dgReceipeints.Rows[i].Cells[RECEIPEINT_EMAIL_COL_INDEX].Value?.ToString();
+                    string displayName = dgReceipeints.Rows[i].Cells[RECEIPEINT_DISPLAY_NAME_COL_INDEX].Value?.ToString();
 
                     if (dgReceipeints.Rows[i].Cells[RECEIPEINT_TYPE_COL_INDEX].Value.Equals(RECEIPEINT_TYPE_CC))
                     {
@@ -214,7 +214,7 @@ namespace AzureCommunicationEmailService
             //Add custom headers
             for (int i = 0; i < dgCustomHeaders.RowCount - 1; i++)
             {
-                emailMessage.CustomHeaders.Add(new EmailCustomHeader(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value.ToString()));
+                emailMessage.CustomHeaders.Add(new EmailCustomHeader(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value?.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value?.ToString()));
             }
 
             //Sending email
