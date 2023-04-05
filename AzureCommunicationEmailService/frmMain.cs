@@ -1,5 +1,6 @@
+using Azure;
 using Azure.Communication.Email;
-using Azure.Communication.Email.Models;
+using Azure.Core;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
 using System.Timers;
@@ -28,7 +29,7 @@ namespace AzureCommunicationEmailService
         private const int CUSTOM_HEADER_VALUE_COL_INDEX = 1;
 
         private System.Timers.Timer _checkMessageStatusTimer;
-        private ConcurrentDictionary<string, DateTime> _messageIds = new ConcurrentDictionary<string, DateTime>(); //Key: Message ID, value: when to check for update
+        private ConcurrentDictionary<EmailSendOperation, DateTime> _messages = new ConcurrentDictionary<EmailSendOperation, DateTime>(); //Key: EmailSendOperation, value: when to check for update
         private EmailClient _emailClient = null;
 
         public frmMain()
@@ -84,7 +85,7 @@ namespace AzureCommunicationEmailService
             errorMessage = "";
 
             //Validate email client
-            if (_emailClient == null)
+            if (_emailClient == null && InitializeEmailClient() == false)
             {
                 MessageBox.Show("Please fill ACS connection string and select Initialize button", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 txtConnString.Focus();
@@ -117,7 +118,7 @@ namespace AzureCommunicationEmailService
             return true;
         }
 
-        private void btnSendEmail_Click(object sender, EventArgs e)
+        private async void btnSendEmail_Click(object sender, EventArgs e)
         {
             WriteTrace("Start sending email...");
 
@@ -173,7 +174,7 @@ namespace AzureCommunicationEmailService
 
             EmailRecipients emailRecipients = new EmailRecipients(receipeintToEmailAddresses, receipeintCCEmailAddresses, receipeintBCCEmailAddresses);
 
-            EmailMessage emailMessage = new EmailMessage(txtFrom.Text, emailContent, emailRecipients);
+            EmailMessage emailMessage = new EmailMessage(txtFrom.Text, emailRecipients, emailContent);
 
             receipeintReplyToEmailAddresses.ForEach(r => emailMessage.ReplyTo.Add(r));
 
@@ -184,45 +185,35 @@ namespace AzureCommunicationEmailService
             {
                 string filePath = dgAttachments.Rows[i].Cells[ATTACHMENTS_FILE_PATH_COL_INDEX].Value.ToString();
                 string attachmentName = Path.GetFileName(filePath);
-
-                EmailAttachmentType emailAttachmentType = new EmailAttachmentType(dgAttachments.Rows[i].Cells[ATTACHMENTS_TYPE_COL_INDEX].Value.ToString());
+                string contentType = dgAttachments.Rows[i].Cells[ATTACHMENTS_TYPE_COL_INDEX].Value.ToString();
 
                 byte[] bytes = File.ReadAllBytes(filePath);
-                string attachmentFileInBytes = Convert.ToBase64String(bytes);
+                BinaryData attachmentBinaryData = new BinaryData(bytes);
 
-                EmailAttachment emailAttachment = new EmailAttachment(attachmentName, emailAttachmentType, attachmentFileInBytes);
+                EmailAttachment emailAttachment = new EmailAttachment(attachmentName, contentType, attachmentBinaryData);
 
                 emailMessage.Attachments.Add(emailAttachment);
             }
 
             //Set email importance
-            switch (cmbImportance.Text.ToLower())
+            if (cmbImportance.SelectedIndex > 0)
             {
-                case "low":
-                    emailMessage.Importance = EmailImportance.Low;
-                    break;
-
-                case "normal":
-                    emailMessage.Importance = EmailImportance.Normal;
-                    break;
-
-                case "high":
-                    emailMessage.Importance = EmailImportance.High;
-                    break;
+                emailMessage.Headers.Add("x-priority", cmbImportance.Text);
             }
 
             //Add custom headers
             for (int i = 0; i < dgCustomHeaders.RowCount - 1; i++)
             {
-                emailMessage.CustomHeaders.Add(new EmailCustomHeader(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value?.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value?.ToString()));
+                emailMessage.Headers.Add(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value?.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value?.ToString());
             }
 
-            //Sending email
-            SendEmailResult sendEmailResult = _emailClient.Send(emailMessage);
-            WriteTrace($"Email sent. Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {sendEmailResult.MessageId}");
+            EmailSendOperation emailSendOperation = await _emailClient.SendAsync(WaitUntil.Started, emailMessage);
+            //EmailSendOperation emailSendOperation = _emailClient.Send(Azure.WaitUntil.Started, emailMessage);
 
-            //Add message ID to monitor list
-            _messageIds.TryAdd(sendEmailResult.MessageId, DateTime.Now);
+            WriteTrace($"Email request has been sent. Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {emailSendOperation.Id}");
+
+            //Add the send operation to the monitor list
+            _messages.TryAdd(emailSendOperation, DateTime.Now);
         }
 
         private void WriteTrace(string message)
@@ -240,35 +231,46 @@ namespace AzureCommunicationEmailService
             }
         }
 
-        private void CheckMessageStatusTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        private async void CheckMessageStatusTimer_Elapsed(object? sender, ElapsedEventArgs e)
         {
             try
             {
-                if (_messageIds.Count == 0)
+                if (_messages.Count == 0)
                 {
                     return;
                 }
-                else if (_emailClient == null)
+                else if (_emailClient == null && InitializeEmailClient() == false)
                 {
-                    WriteTrace($"Connection string reset. Exit checking send status for message Id(s) {String.Join(", ", _messageIds.ToArray())}");
-                    _messageIds.Clear();
+                    WriteTrace($"Failed to initialize email client. Exit checking send status for message Id(s) {String.Join(", ", _messages.Select(m => m.Key.Id).ToArray())}");
+                    _messages.Clear();
                     return;
                 }
 
-                foreach (var messageIdKeyValuePair in _messageIds)
+                foreach (var message in _messages)
                 {
-                    Azure.Response<SendStatusResult> messageStatus = _emailClient.GetSendStatus(messageIdKeyValuePair.Key);
-
-                    WriteTrace($"Message {messageIdKeyValuePair.Key}; status: {messageStatus.Value.Status}");
-
-                    if (messageStatus.Value.Status == SendStatus.Queued)
+                    try
                     {
-                        _messageIds.TryUpdate(messageIdKeyValuePair.Key, DateTime.Now.AddSeconds(1), messageIdKeyValuePair.Value);
+                        await message.Key.UpdateStatusAsync();
+
+                        WriteTrace($"Message {message.Key.Id}; status: {(message.Key.HasValue ? message.Key.Value.Status : "n/a")}");
+
+                        if (message.Key.HasCompleted)
+                        {
+                            DateTime tempTime;
+                            _messages.Remove(message.Key, out tempTime);
+                            break;
+                        }
                     }
-                    else
+                    catch (RequestFailedException ex)
                     {
+                        WriteTrace($"Exception occureed while retrieving Message {message.Key.Id} delivery status with error code {ex.ErrorCode} {Environment.NewLine}" +
+                                        $"================================================== {Environment.NewLine}" +
+                                        $"{ex.Message}" +
+                                        "==================================================");
+
+                        WriteTrace($"Removing message {message.Key.Id} from monitoring queue");
                         DateTime tempTime;
-                        _messageIds.Remove(messageIdKeyValuePair.Key, out tempTime);
+                        _messages.Remove(message.Key, out tempTime);
                     }
                 }
             }
@@ -301,10 +303,7 @@ namespace AzureCommunicationEmailService
             row.Cells[ATTACHMENTS_FILES_SIZE_COL_INDEX].Value = new FileInfo(filePath).Length.ToString("N0");
 
             var fileExtension = Path.GetExtension(filePath).ToLower().Substring(1);
-            if ((row.Cells[ATTACHMENTS_TYPE_COL_INDEX] as DataGridViewComboBoxCell).Items.Contains(fileExtension))
-            {
-                row.Cells[ATTACHMENTS_TYPE_COL_INDEX].Value = fileExtension;
-            }
+            row.Cells[ATTACHMENTS_TYPE_COL_INDEX].Value = fileExtension;
 
             dgAttachments.Rows.Add(row);
         }
@@ -395,6 +394,11 @@ namespace AzureCommunicationEmailService
 
         private void btnInitializeConnString_Click(object sender, EventArgs e)
         {
+            InitializeEmailClient();
+        }
+
+        private bool InitializeEmailClient()
+        {
             WriteTrace("Initializing email client...");
 
             if (string.IsNullOrEmpty(txtConnString.Text.Trim()))
@@ -403,17 +407,74 @@ namespace AzureCommunicationEmailService
 
                 MessageBox.Show("Please fill connection string", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtConnString.Focus();
-                return;
+                return false;
             }
 
             if (_emailClient == null)
             {
-                _emailClient = new EmailClient(txtConnString.Text);
-                txtConnString.Enabled = false;
-                btnInitializeConnString.Enabled = false;
+                if (chk429AutoRetry.Checked)
+                {
+                    EmailClientOptions emailClientOptions = new EmailClientOptions();
+                    emailClientOptions.AddPolicy(new Catch429Policy(), HttpPipelinePosition.PerRetry);
+                    _emailClient = new EmailClient(txtConnString.Text, emailClientOptions);
+                }
+                else
+                {
+                    _emailClient = new EmailClient(txtConnString.Text);
+                }
+
+                pnlInitialize.Enabled = false;
+                //txtConnString.Enabled = false;
+                //btnInitializeConnString.Enabled = false;
                 _checkMessageStatusTimer.Start();
 
+                WriteTrace($"429 auto retry is enabled: {chk429AutoRetry.Checked}");
                 WriteTrace("Initialization succeeded");
+            }
+
+            return true;
+        }
+
+        private async void btnGetMsgDeliveryStatus_Click(object sender, EventArgs e)
+        {
+            string tempMsgId = txtMessageID.Text.Trim();
+
+            WriteTrace($"Getting email delivery status for message {tempMsgId}...");
+
+            //Validate email client
+            if (_emailClient == null && InitializeEmailClient() == false)
+            {
+                MessageBox.Show("Please fill ACS connection string and select Initialize button", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                txtConnString.Focus();
+                WriteTrace("Getting email delivery status failed. Email client is not initialized");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(tempMsgId))
+            {
+                WriteTrace("Getting email delivery status failed. Fill the Message ID to get delivery status");
+
+                MessageBox.Show("Message ID is empty!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtMessageID.Focus();
+                return;
+            }
+
+            EmailSendOperation emailSendOperation = null;
+
+            try
+            {
+                emailSendOperation = new EmailSendOperation(tempMsgId, _emailClient);
+
+                await emailSendOperation.UpdateStatusAsync();
+
+                WriteTrace($"Message {emailSendOperation.Id}; status: {(emailSendOperation.HasValue ? emailSendOperation.Value.Status : "n/a")}");
+            }
+            catch (RequestFailedException ex)
+            {
+                WriteTrace($"Exception occureed while retrieving Message {emailSendOperation.Id} delivery status with error code {ex.ErrorCode} {Environment.NewLine}" +
+                                $"================================================== {Environment.NewLine}" +
+                                $"{ex.Message}" +
+                                "==================================================");
             }
         }
     }

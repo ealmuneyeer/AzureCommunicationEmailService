@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Communication.Email.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace AzureCommunicationEmailService
@@ -20,7 +19,7 @@ namespace AzureCommunicationEmailService
 
         private List<string> _attachmentPaths;
 
-        private EmailImportance? _importance = null;
+        private int? _importance = null;
 
 
         public ConfigWrapper(IConfiguration config)
@@ -83,24 +82,9 @@ namespace AzureCommunicationEmailService
             return result;
         }
 
-        private EmailImportance? GetEmailImportance(string importance)
+        private int? GetEmailImportance(string importance)
         {
-            EmailImportance? result = null;
-
-            if (importance.Equals("low", StringComparison.InvariantCultureIgnoreCase))
-            {
-                result = EmailImportance.Low;
-            }
-            else if (importance.Equals("normal", StringComparison.InvariantCultureIgnoreCase))
-            {
-                result = EmailImportance.Normal;
-            }
-            else if (importance.Equals("high", StringComparison.InvariantCultureIgnoreCase))
-            {
-                result = EmailImportance.High;
-            }
-
-            return result;
+            return (!string.IsNullOrEmpty(importance) ? Convert.ToInt32(importance) : null);
         }
 
         private List<string> ParseAttachmentPaths(string attachmentPaths)
@@ -178,7 +162,7 @@ namespace AzureCommunicationEmailService
             get { return _attachmentPaths; }
         }
 
-        public EmailImportance? Importance
+        public int? Importance
         {
             get { return _importance; }
         }
