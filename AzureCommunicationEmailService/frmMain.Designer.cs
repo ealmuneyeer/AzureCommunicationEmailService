@@ -69,6 +69,10 @@
             label8 = new Label();
             chk429AutoRetry = new CheckBox();
             pnlInitialize = new Panel();
+            label9 = new Label();
+            cmbSendWaitUntil = new ComboBox();
+            label10 = new Label();
+            numEmailsToSend = new NumericUpDown();
             grpAttachments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgAttachments).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgReceipeints).BeginInit();
@@ -79,6 +83,7 @@
             ((System.ComponentModel.ISupportInitialize)dgCustomHeaders).BeginInit();
             groupBox1.SuspendLayout();
             pnlInitialize.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numEmailsToSend).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -92,7 +97,7 @@
             // 
             // txtConnString
             // 
-            txtConnString.Location = new Point(4, 5);
+            txtConnString.Location = new Point(5, 5);
             txtConnString.Name = "txtConnString";
             txtConnString.Size = new Size(460, 27);
             txtConnString.TabIndex = 0;
@@ -293,7 +298,7 @@
             grpTrace.Controls.Add(txtTrace);
             grpTrace.Location = new Point(847, 85);
             grpTrace.Name = "grpTrace";
-            grpTrace.Size = new Size(752, 694);
+            grpTrace.Size = new Size(752, 693);
             grpTrace.TabIndex = 11;
             grpTrace.TabStop = false;
             grpTrace.Text = "Trace";
@@ -435,7 +440,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(311, 118);
+            label8.Location = new Point(311, 117);
             label8.Name = "label8";
             label8.Size = new Size(235, 20);
             label8.TabIndex = 18;
@@ -460,14 +465,57 @@
             pnlInitialize.Controls.Add(txtConnString);
             pnlInitialize.Location = new Point(142, 8);
             pnlInitialize.Name = "pnlInitialize";
-            pnlInitialize.Size = new Size(700, 35);
+            pnlInitialize.Size = new Size(699, 35);
             pnlInitialize.TabIndex = 1;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(17, 749);
+            label9.Name = "label9";
+            label9.Size = new Size(110, 20);
+            label9.TabIndex = 19;
+            label9.Text = "Send wait until:";
+            // 
+            // cmbSendWaitUntil
+            // 
+            cmbSendWaitUntil.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbSendWaitUntil.FormattingEnabled = true;
+            cmbSendWaitUntil.Items.AddRange(new object[] { "Started", "Completed" });
+            cmbSendWaitUntil.Location = new Point(133, 746);
+            cmbSendWaitUntil.Margin = new Padding(3, 4, 3, 4);
+            cmbSendWaitUntil.Name = "cmbSendWaitUntil";
+            cmbSendWaitUntil.Size = new Size(138, 28);
+            cmbSendWaitUntil.TabIndex = 20;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(311, 749);
+            label10.Name = "label10";
+            label10.Size = new Size(181, 20);
+            label10.TabIndex = 21;
+            label10.Text = "Number of emails to send";
+            // 
+            // numEmailsToSend
+            // 
+            numEmailsToSend.Location = new Point(498, 747);
+            numEmailsToSend.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numEmailsToSend.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numEmailsToSend.Name = "numEmailsToSend";
+            numEmailsToSend.Size = new Size(73, 27);
+            numEmailsToSend.TabIndex = 22;
+            numEmailsToSend.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1612, 792);
+            ClientSize = new Size(1611, 792);
+            Controls.Add(numEmailsToSend);
+            Controls.Add(label10);
+            Controls.Add(cmbSendWaitUntil);
+            Controls.Add(label9);
             Controls.Add(pnlInitialize);
             Controls.Add(label8);
             Controls.Add(groupBox1);
@@ -502,6 +550,7 @@
             groupBox1.PerformLayout();
             pnlInitialize.ResumeLayout(false);
             pnlInitialize.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numEmailsToSend).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -550,5 +599,9 @@
         private DataGridViewComboBoxColumn attachType_Old;
         private CheckBox chk429AutoRetry;
         private Panel pnlInitialize;
+        private Label label9;
+        private ComboBox cmbSendWaitUntil;
+        private Label label10;
+        private NumericUpDown numEmailsToSend;
     }
 }

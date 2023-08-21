@@ -1,8 +1,10 @@
 using Azure;
 using Azure.Communication.Email;
 using Azure.Core;
+using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Timers;
 
 namespace AzureCommunicationEmailService
@@ -60,6 +62,8 @@ namespace AzureCommunicationEmailService
             }
 
             FillCustomHeaders(configWrapper.CustomHeaders);
+
+            cmbSendWaitUntil.SelectedIndex = 0;
 
             _checkMessageStatusTimer = new System.Timers.Timer(1000);
             _checkMessageStatusTimer.AutoReset = false;
@@ -207,13 +211,29 @@ namespace AzureCommunicationEmailService
                 emailMessage.Headers.Add(dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_NAME_COL_INDEX].Value?.ToString(), dgCustomHeaders.Rows[i].Cells[CUSTOM_HEADER_VALUE_COL_INDEX].Value?.ToString());
             }
 
-            EmailSendOperation emailSendOperation = await _emailClient.SendAsync(WaitUntil.Started, emailMessage);
-            //EmailSendOperation emailSendOperation = _emailClient.Send(Azure.WaitUntil.Started, emailMessage);
+            WaitUntil waitUntil = cmbSendWaitUntil.Text.Equals("Completed", StringComparison.InvariantCultureIgnoreCase) ? WaitUntil.Completed : WaitUntil.Started;
 
-            WriteTrace($"Email request has been sent. Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {emailSendOperation.Id}");
+            //Send multiple emails
+            Stopwatch allEmailsStopwatch = new Stopwatch();
+            Stopwatch singleEmailstopwatch = new Stopwatch();
+            EmailSendOperation emailSendOperation;
 
-            //Add the send operation to the monitor list
-            _messages.TryAdd(emailSendOperation, DateTime.Now);
+            allEmailsStopwatch.Start();
+            for (int i = 0; i < numEmailsToSend.Value; i++)
+            {
+                singleEmailstopwatch.Restart();
+
+                emailSendOperation = await _emailClient.SendAsync(waitUntil, emailMessage);
+
+                singleEmailstopwatch.Stop();
+
+                WriteTrace($"Email request has been sent. Waited until: {waitUntil}; Time elapsed: {singleEmailstopwatch.Elapsed.ToString("mm\\:ss\\.fff")}; Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {emailSendOperation.Id}");
+
+                //Add the send operation to the monitor list
+                _messages.TryAdd(emailSendOperation, DateTime.Now);
+            }
+
+            WriteTrace($"***** {numEmailsToSend.Value} email(s) has been sent. Waited until: {waitUntil}; Time elapsed: {allEmailsStopwatch.Elapsed.ToString("mm\\:ss\\.fff")}");
         }
 
         private void WriteTrace(string message)
