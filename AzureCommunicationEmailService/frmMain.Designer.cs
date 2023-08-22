@@ -449,8 +449,6 @@
             // chk429AutoRetry
             // 
             chk429AutoRetry.AutoSize = true;
-            chk429AutoRetry.Checked = true;
-            chk429AutoRetry.CheckState = CheckState.Checked;
             chk429AutoRetry.Location = new Point(470, 7);
             chk429AutoRetry.Name = "chk429AutoRetry";
             chk429AutoRetry.Size = new Size(123, 24);
@@ -500,7 +498,7 @@
             // numEmailsToSend
             // 
             numEmailsToSend.Location = new Point(498, 747);
-            numEmailsToSend.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            numEmailsToSend.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numEmailsToSend.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numEmailsToSend.Name = "numEmailsToSend";
             numEmailsToSend.Size = new Size(73, 27);

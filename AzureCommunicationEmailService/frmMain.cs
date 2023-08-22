@@ -227,12 +227,13 @@ namespace AzureCommunicationEmailService
 
                 singleEmailstopwatch.Stop();
 
-                WriteTrace($"Email request has been sent. Waited until: {waitUntil}; Time elapsed: {singleEmailstopwatch.Elapsed.ToString("mm\\:ss\\.fff")}; Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {emailSendOperation.Id}");
+                WriteTrace($"Email request #{i + 1} has been sent. Waited until: {waitUntil}; Time elapsed: {singleEmailstopwatch.Elapsed.ToString("mm\\:ss\\.fff")}; Attachment count: {emailMessage.Attachments.Count}; Size: {FormatSize(attachmentSize)}. Message Id: {emailSendOperation?.Id}");
 
                 //Add the send operation to the monitor list
                 _messages.TryAdd(emailSendOperation, DateTime.Now);
             }
 
+            allEmailsStopwatch.Stop();
             WriteTrace($"***** {numEmailsToSend.Value} email(s) has been sent. Waited until: {waitUntil}; Time elapsed: {allEmailsStopwatch.Elapsed.ToString("mm\\:ss\\.fff")}");
         }
 
@@ -248,6 +249,24 @@ namespace AzureCommunicationEmailService
             else
             {
                 txtTrace.AppendText($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {message}{Environment.NewLine}");
+            }
+        }
+
+        public void WriteException(Exception ex)
+        {
+            if (txtTrace.InvokeRequired)
+            {
+                txtTrace.Invoke(new Action(() =>
+                {
+                    WriteException(ex);
+                }));
+            }
+            else
+            {
+                txtTrace.AppendText($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Unhandled exception occured! {Environment.NewLine}" +
+                  $"================================================== {Environment.NewLine}" +
+                  $"{ex.Message}" +
+                  $"{Environment.NewLine}==================================================");
             }
         }
 
@@ -286,7 +305,7 @@ namespace AzureCommunicationEmailService
                         WriteTrace($"Exception occureed while retrieving Message {message.Key.Id} delivery status with error code {ex.ErrorCode} {Environment.NewLine}" +
                                         $"================================================== {Environment.NewLine}" +
                                         $"{ex.Message}" +
-                                        "==================================================");
+                                        $"{Environment.NewLine}==================================================");
 
                         WriteTrace($"Removing message {message.Key.Id} from monitoring queue");
                         DateTime tempTime;
@@ -434,13 +453,13 @@ namespace AzureCommunicationEmailService
             {
                 if (chk429AutoRetry.Checked)
                 {
-                    EmailClientOptions emailClientOptions = new EmailClientOptions();
-                    emailClientOptions.AddPolicy(new Catch429Policy(), HttpPipelinePosition.PerRetry);
-                    _emailClient = new EmailClient(txtConnString.Text, emailClientOptions);
+                    _emailClient = new EmailClient(txtConnString.Text);
                 }
                 else
                 {
-                    _emailClient = new EmailClient(txtConnString.Text);
+                    EmailClientOptions emailClientOptions = new EmailClientOptions();
+                    emailClientOptions.AddPolicy(new Catch429Policy(), HttpPipelinePosition.PerRetry);
+                    _emailClient = new EmailClient(txtConnString.Text, emailClientOptions);
                 }
 
                 pnlInitialize.Enabled = false;
@@ -494,7 +513,7 @@ namespace AzureCommunicationEmailService
                 WriteTrace($"Exception occureed while retrieving Message {emailSendOperation.Id} delivery status with error code {ex.ErrorCode} {Environment.NewLine}" +
                                 $"================================================== {Environment.NewLine}" +
                                 $"{ex.Message}" +
-                                "==================================================");
+                                $"{Environment.NewLine}==================================================");
             }
         }
     }
