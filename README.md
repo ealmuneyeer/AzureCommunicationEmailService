@@ -4,7 +4,7 @@
 
 You can use this appliction to test Azure Communication Services Email Service https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/create-email-communication-resource
 
-![image](https://user-images.githubusercontent.com/36260446/230050202-e8eb0c40-adf0-4941-9878-179648139d34.png)
+![image](https://github.com/ealmuneyeer/AzureCommunicationEmailService/assets/36260446/e25ce2d9-91a1-4926-bb90-2f694a272b4f)
 
 
 # Note: -
