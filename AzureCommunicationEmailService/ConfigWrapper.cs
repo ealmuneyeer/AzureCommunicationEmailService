@@ -184,12 +184,12 @@ namespace AzureCommunicationEmailService
 
         public string AAD_ClientId
         {
-            get { return _config["AADClientId"]; }
+            get { return _config["AAD_ClientId"]; }
         }
 
         public string AAD_ClientSecret
         {
-            get { return _config["AADClientSecret"]; }
+            get { return _config["AAD_ClientSecret"]; }
         }
     }
 
