@@ -30,9 +30,14 @@ namespace AzureCommunicationEmailService
         private const int CUSTOM_HEADER_NAME_COL_INDEX = 0;
         private const int CUSTOM_HEADER_VALUE_COL_INDEX = 1;
 
+        private const int DRP_AUTH_TYPE_ACS_KEY_INDEX = 0;
+        private const int DRP_AUTH_TYPE_AAD_DEFAULT_INDEX = 1;
+        private const int DRP_AUTH_TYPE_AAD_CLIENT_INDEX = 2;
+
         private System.Timers.Timer _checkMessageStatusTimer;
         private ConcurrentDictionary<EmailSendOperation, DateTime> _messages = new ConcurrentDictionary<EmailSendOperation, DateTime>(); //Key: EmailSendOperation, value: when to check for update
         private EmailClient _emailClient = null;
+
 
         public frmMain()
         {
@@ -62,6 +67,10 @@ namespace AzureCommunicationEmailService
             }
 
             FillCustomHeaders(configWrapper.CustomHeaders);
+
+            FillAuthenticationType(configWrapper.AuthenticationType);
+
+            FillCustomCredentials(configWrapper.TenantId, configWrapper.AAD_ClientId, configWrapper.AAD_ClientSecret);
 
             cmbSendWaitUntil.SelectedIndex = 0;
 
@@ -213,6 +222,20 @@ namespace AzureCommunicationEmailService
 
             WaitUntil waitUntil = cmbSendWaitUntil.Text.Equals("Completed", StringComparison.InvariantCultureIgnoreCase) ? WaitUntil.Completed : WaitUntil.Started;
 
+            //// test start;
+            //var credentials = new DefaultAzureCredential();
+            ////var client = new EmailClient(new Uri("https://ebraheemacsus.communication.azure.com/"), credentials); //MS
+            //var client = new EmailClient(new Uri("https://eaper-acs-us.communication.azure.com"), credentials); //Personal
+            //var subject = "Welcome to Azure Communication Service Email APIs.";
+            //var htmlContent = "<html><body><h1>Quick send email test</h1><br/><h4>This email message is sent from Azure Communication Service Email.</h4><p>This mail was sent using .NET SDK!!</p></body></html>";
+            //var senderr = "DoNotReply@1a25d6fc-f0d3-45c1-9d83-e6e7491102ab.azurecomm.net";
+            //var recipient = "ealmuneyeer@microsoft.com";
+
+            //var message = new EmailMessage(senderr, recipient, new EmailContent(subject) { Html = htmlContent });
+            //var emailSendOperation = await client.SendAsync(WaitUntil.Started, message);
+            //// test end
+
+
             //Send multiple emails
             Stopwatch allEmailsStopwatch = new Stopwatch();
             Stopwatch singleEmailstopwatch = new Stopwatch();
@@ -265,8 +288,8 @@ namespace AzureCommunicationEmailService
             {
                 txtTrace.AppendText($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] Unhandled exception occured! {Environment.NewLine}" +
                   $"================================================== {Environment.NewLine}" +
-                  $"{ex.Message}" +
-                  $"{Environment.NewLine}==================================================");
+                  $"{ex.Message.TrimEnd()}" +
+                  $"{Environment.NewLine}=================================================={Environment.NewLine}");
             }
         }
 
@@ -334,15 +357,14 @@ namespace AzureCommunicationEmailService
 
         private void FillAttachment(string filePath)
         {
+            FileInfo fileInfo = new FileInfo(filePath);
             DataGridViewRow row = new DataGridViewRow();
+
             row.CreateCells(dgAttachments);
 
             row.Cells[ATTACHMENTS_FILE_PATH_COL_INDEX].Value = filePath;
-
-            row.Cells[ATTACHMENTS_FILES_SIZE_COL_INDEX].Value = new FileInfo(filePath).Length.ToString("N0");
-
-            var fileExtension = Path.GetExtension(filePath).ToLower().Substring(1);
-            row.Cells[ATTACHMENTS_TYPE_COL_INDEX].Value = fileExtension;
+            row.Cells[ATTACHMENTS_FILES_SIZE_COL_INDEX].Value = fileInfo.Length.ToString("N0");
+            row.Cells[ATTACHMENTS_TYPE_COL_INDEX].Value = fileInfo.Extension.TrimStart('.');
 
             dgAttachments.Rows.Add(row);
         }
@@ -367,6 +389,32 @@ namespace AzureCommunicationEmailService
 
                 dgCustomHeaders.Rows.Add(row);
             }
+        }
+
+        private void FillAuthenticationType(string authType)
+        {
+            if (authType.Equals(Helpers.AuthenticationType.ACS_KEY, StringComparison.InvariantCultureIgnoreCase))
+            {
+                cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_ACS_KEY_INDEX;
+            }
+            else if (authType.Equals(Helpers.AuthenticationType.AAD_DEFAULT_CREDENTIALS, StringComparison.InvariantCultureIgnoreCase))
+            {
+                cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_AAD_DEFAULT_INDEX;
+            }
+            else if (authType.Equals(Helpers.AuthenticationType.AAD_CLIENT_SECRESTS, StringComparison.InvariantCultureIgnoreCase))
+            {
+                cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_AAD_CLIENT_INDEX;
+            }
+            else
+            {
+                cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_ACS_KEY_INDEX;
+                WriteTrace($"Unexpected/Empty authentication type '{authType}'. Default authentication 'AcsKey' will be used");
+            }
+        }
+
+        private void FillCustomCredentials(string tenantId, string clientId, string clientSecret)
+        {
+            Helpers.UpdateClientCredentials(tenantId, clientId, clientSecret);
         }
 
         private void dgAttachments_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -448,30 +496,107 @@ namespace AzureCommunicationEmailService
                 txtConnString.Focus();
                 return false;
             }
+            else if (cmbAuthType.SelectedIndex == -1)
+            {
+                WriteTrace("Initialization failed. Please select authentication method");
+
+                MessageBox.Show("Please select authentication method", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                cmbAuthType.Focus();
+                return false;
+            }
+
+            if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_DEFAULT_INDEX)
+            {
+                string missingConfigErrorMsg = "Initialization will continue with wanring. Environment varilbale {0} is missing or empty!";
+
+                if (string.IsNullOrEmpty(Helpers.EnvironmentVarCredentials.TenantId.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_TENANT_ID));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_TENANT_ID), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else if (string.IsNullOrEmpty(Helpers.EnvironmentVarCredentials.ClientId.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_CLIENT_ID));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_CLIENT_ID), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else if (string.IsNullOrEmpty(Helpers.EnvironmentVarCredentials.ClientSecret.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_CLIENT_SECRET));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, Helpers.EnvironmentVariable.AZURE_CLIENT_SECRET), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            else if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_CLIENT_INDEX)
+            {
+                string missingConfigErrorMsg = "Initialization will continue with wanring. {0} is empty!";
+
+                if (string.IsNullOrEmpty(configWrapper.TenantId.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, "Tenant Id"));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, "Tenant Id"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else if (string.IsNullOrEmpty(configWrapper.AAD_ClientId.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, "AAD_ClientId"));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, "AAD_ClientId"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else if (string.IsNullOrEmpty(configWrapper.AAD_ClientSecret.Trim()))
+                {
+                    WriteTrace(string.Format(missingConfigErrorMsg, "AAD_ClientSecret"));
+
+                    MessageBox.Show(string.Format(missingConfigErrorMsg, "AAD_ClientSecret"), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
 
             if (_emailClient == null)
             {
-                if (chk429AutoRetry.Checked)
+                EmailClientOptions emailClientOptions = null;
+
+                if (chk429AutoRetry.Checked == false)
                 {
-                    _emailClient = new EmailClient(txtConnString.Text);
-                }
-                else
-                {
-                    EmailClientOptions emailClientOptions = new EmailClientOptions();
+                    emailClientOptions = new EmailClientOptions();
                     emailClientOptions.AddPolicy(new Catch429Policy(), HttpPipelinePosition.PerRetry);
+                }
+
+                if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_ACS_KEY_INDEX)
+                {
                     _emailClient = new EmailClient(txtConnString.Text, emailClientOptions);
+                }
+                else if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_DEFAULT_INDEX)
+                {
+                    Uri endPoint = new Uri(GetEndpoint(txtConnString.Text));
+                    _emailClient = new EmailClient(endPoint, new DefaultAzureCredential());
+                }
+                else if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_CLIENT_INDEX)
+                {
+                    ClientSecretCredential clientSecretCredential = new ClientSecretCredential(Helpers.ClientCredentials.TenantId, Helpers.ClientCredentials.ClientId, Helpers.ClientCredentials.ClientSecret);
+                    Uri endPoint = new Uri(GetEndpoint(txtConnString.Text));
+                    _emailClient = new EmailClient(endPoint, clientSecretCredential);
                 }
 
                 pnlInitialize.Enabled = false;
-                //txtConnString.Enabled = false;
-                //btnInitializeConnString.Enabled = false;
                 _checkMessageStatusTimer.Start();
 
                 WriteTrace($"429 auto retry is enabled: {chk429AutoRetry.Checked}");
+                WriteTrace($"Authentication type: {cmbAuthType.Text}");
                 WriteTrace("Initialization succeeded");
             }
 
             return true;
+        }
+
+        public string GetEndpoint(string connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString.Trim()))
+            {
+                return "";
+            }
+
+            return connectionString.Substring(connectionString.IndexOf('=') + 1, connectionString.IndexOf(';') - ("endpoint=".Count()));
         }
 
         private async void btnGetMsgDeliveryStatus_Click(object sender, EventArgs e)
@@ -515,6 +640,31 @@ namespace AzureCommunicationEmailService
                                 $"{ex.Message}" +
                                 $"{Environment.NewLine}==================================================");
             }
+        }
+
+        private void btnAADConfig_Click(object sender, EventArgs e)
+        {
+            Helpers.AADCredentials credentials;
+            Helpers.CredentialsSource source;
+
+            if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_DEFAULT_INDEX)
+            {
+                credentials = Helpers.EnvironmentVarCredentials;
+                source = Helpers.CredentialsSource.EnvironmentVariables;
+            }
+            else
+            {
+                credentials = Helpers.ClientCredentials;
+                source = Helpers.CredentialsSource.AppSettings;
+            }
+
+            frmAADAuthentication frmAADAuthentication = new frmAADAuthentication(source, credentials);
+            frmAADAuthentication.ShowDialog();
+        }
+
+        private void cmbAuthType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnAADConfig.Enabled = cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_DEFAULT_INDEX || cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_AAD_CLIENT_INDEX;
         }
     }
 }

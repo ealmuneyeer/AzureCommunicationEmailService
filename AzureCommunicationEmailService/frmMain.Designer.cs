@@ -69,10 +69,15 @@
             label8 = new Label();
             chk429AutoRetry = new CheckBox();
             pnlInitialize = new Panel();
+            btnAADConfig = new Button();
+            label12 = new Label();
+            label11 = new Label();
+            cmbAuthType = new ComboBox();
             label9 = new Label();
             cmbSendWaitUntil = new ComboBox();
             label10 = new Label();
             numEmailsToSend = new NumericUpDown();
+            panel1 = new Panel();
             grpAttachments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgAttachments).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgReceipeints).BeginInit();
@@ -84,12 +89,13 @@
             groupBox1.SuspendLayout();
             pnlInitialize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).BeginInit();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(11, 16);
+            label1.Location = new Point(26, 72);
             label1.Name = "label1";
             label1.Size = new Size(128, 20);
             label1.TabIndex = 0;
@@ -97,14 +103,14 @@
             // 
             // txtConnString
             // 
-            txtConnString.Location = new Point(5, 5);
+            txtConnString.Location = new Point(160, 69);
             txtConnString.Name = "txtConnString";
-            txtConnString.Size = new Size(460, 27);
-            txtConnString.TabIndex = 0;
+            txtConnString.Size = new Size(576, 27);
+            txtConnString.TabIndex = 3;
             // 
             // btnSendEmail
             // 
-            btnSendEmail.Location = new Point(690, 739);
+            btnSendEmail.Location = new Point(690, 799);
             btnSendEmail.Name = "btnSendEmail";
             btnSendEmail.Size = new Size(152, 40);
             btnSendEmail.TabIndex = 9;
@@ -120,10 +126,10 @@
             grpAttachments.Controls.Add(lblAttachmentsCount);
             grpAttachments.Controls.Add(dgAttachments);
             grpAttachments.Controls.Add(btnAddAttachment);
-            grpAttachments.Location = new Point(11, 517);
+            grpAttachments.Location = new Point(11, 577);
             grpAttachments.Name = "grpAttachments";
             grpAttachments.Size = new Size(830, 215);
-            grpAttachments.TabIndex = 8;
+            grpAttachments.TabIndex = 5;
             grpAttachments.TabStop = false;
             grpAttachments.Text = "Attachments";
             // 
@@ -221,15 +227,15 @@
             // 
             // txtFrom
             // 
-            txtFrom.Location = new Point(146, 49);
+            txtFrom.Location = new Point(160, 3);
             txtFrom.Name = "txtFrom";
-            txtFrom.Size = new Size(690, 27);
+            txtFrom.Size = new Size(675, 27);
             txtFrom.TabIndex = 2;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(94, 56);
+            label5.Location = new Point(108, 6);
             label5.Name = "label5";
             label5.Size = new Size(46, 20);
             label5.TabIndex = 6;
@@ -279,15 +285,15 @@
             // 
             // txtSubject
             // 
-            txtSubject.Location = new Point(146, 83);
+            txtSubject.Location = new Point(160, 37);
             txtSubject.Name = "txtSubject";
-            txtSubject.Size = new Size(690, 27);
+            txtSubject.Size = new Size(675, 27);
             txtSubject.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(79, 85);
+            label2.Location = new Point(93, 40);
             label2.Name = "label2";
             label2.Size = new Size(61, 20);
             label2.TabIndex = 0;
@@ -298,7 +304,7 @@
             grpTrace.Controls.Add(txtTrace);
             grpTrace.Location = new Point(847, 85);
             grpTrace.Name = "grpTrace";
-            grpTrace.Size = new Size(752, 693);
+            grpTrace.Size = new Size(752, 754);
             grpTrace.TabIndex = 11;
             grpTrace.TabStop = false;
             grpTrace.Text = "Trace";
@@ -310,34 +316,34 @@
             txtTrace.Multiline = true;
             txtTrace.Name = "txtTrace";
             txtTrace.ScrollBars = ScrollBars.Vertical;
-            txtTrace.Size = new Size(740, 661);
+            txtTrace.Size = new Size(740, 717);
             txtTrace.TabIndex = 0;
             // 
             // grpBody
             // 
             grpBody.Controls.Add(chkIsHtmlBody);
             grpBody.Controls.Add(txtBody);
-            grpBody.Location = new Point(11, 149);
+            grpBody.Location = new Point(11, 209);
             grpBody.Name = "grpBody";
             grpBody.Size = new Size(824, 177);
-            grpBody.TabIndex = 5;
+            grpBody.TabIndex = 2;
             grpBody.TabStop = false;
             grpBody.Text = "Body";
             // 
             // grpReceipents
             // 
             grpReceipents.Controls.Add(dgReceipeints);
-            grpReceipents.Location = new Point(11, 332);
+            grpReceipents.Location = new Point(11, 392);
             grpReceipents.Name = "grpReceipents";
             grpReceipents.Size = new Size(528, 180);
-            grpReceipents.TabIndex = 6;
+            grpReceipents.TabIndex = 3;
             grpReceipents.TabStop = false;
             grpReceipents.Text = "Receipents";
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(53, 115);
+            label6.Location = new Point(66, 72);
             label6.Name = "label6";
             label6.Size = new Size(88, 20);
             label6.TabIndex = 15;
@@ -349,7 +355,7 @@
             cmbImportance.FormattingEnabled = true;
             cmbImportance.ItemHeight = 20;
             cmbImportance.Items.AddRange(new object[] { "None", "1", "2", "3", "4", "5" });
-            cmbImportance.Location = new Point(146, 115);
+            cmbImportance.Location = new Point(160, 69);
             cmbImportance.Name = "cmbImportance";
             cmbImportance.Size = new Size(159, 28);
             cmbImportance.TabIndex = 4;
@@ -357,10 +363,10 @@
             // grpCustomHeders
             // 
             grpCustomHeders.Controls.Add(dgCustomHeaders);
-            grpCustomHeders.Location = new Point(546, 332);
+            grpCustomHeders.Location = new Point(551, 392);
             grpCustomHeders.Name = "grpCustomHeders";
             grpCustomHeders.Size = new Size(296, 180);
-            grpCustomHeders.TabIndex = 7;
+            grpCustomHeders.TabIndex = 4;
             grpCustomHeders.TabStop = false;
             grpCustomHeders.Text = "Custom Headers";
             // 
@@ -391,10 +397,10 @@
             // 
             // btnInitializeConnString
             // 
-            btnInitializeConnString.Location = new Point(599, 4);
+            btnInitializeConnString.Location = new Point(741, 69);
             btnInitializeConnString.Name = "btnInitializeConnString";
             btnInitializeConnString.Size = new Size(94, 29);
-            btnInitializeConnString.TabIndex = 3;
+            btnInitializeConnString.TabIndex = 4;
             btnInitializeConnString.Text = "Initialize";
             btnInitializeConnString.UseVisualStyleBackColor = true;
             btnInitializeConnString.Click += btnInitializeConnString_Click;
@@ -440,7 +446,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(311, 117);
+            label8.Location = new Point(325, 72);
             label8.Name = "label8";
             label8.Size = new Size(235, 20);
             label8.TabIndex = 18;
@@ -449,27 +455,70 @@
             // chk429AutoRetry
             // 
             chk429AutoRetry.AutoSize = true;
-            chk429AutoRetry.Location = new Point(470, 7);
+            chk429AutoRetry.Location = new Point(160, 46);
             chk429AutoRetry.Name = "chk429AutoRetry";
-            chk429AutoRetry.Size = new Size(123, 24);
+            chk429AutoRetry.Size = new Size(18, 17);
             chk429AutoRetry.TabIndex = 2;
-            chk429AutoRetry.Text = "429 auto retry";
             chk429AutoRetry.UseVisualStyleBackColor = true;
             // 
             // pnlInitialize
             // 
+            pnlInitialize.Controls.Add(btnAADConfig);
+            pnlInitialize.Controls.Add(label12);
+            pnlInitialize.Controls.Add(label11);
+            pnlInitialize.Controls.Add(cmbAuthType);
             pnlInitialize.Controls.Add(chk429AutoRetry);
             pnlInitialize.Controls.Add(btnInitializeConnString);
             pnlInitialize.Controls.Add(txtConnString);
-            pnlInitialize.Location = new Point(142, 8);
+            pnlInitialize.Controls.Add(label1);
+            pnlInitialize.Location = new Point(0, 0);
             pnlInitialize.Name = "pnlInitialize";
-            pnlInitialize.Size = new Size(699, 35);
-            pnlInitialize.TabIndex = 1;
+            pnlInitialize.Size = new Size(841, 102);
+            pnlInitialize.TabIndex = 0;
+            // 
+            // btnAADConfig
+            // 
+            btnAADConfig.Location = new Point(327, 12);
+            btnAADConfig.Name = "btnAADConfig";
+            btnAADConfig.Size = new Size(165, 29);
+            btnAADConfig.TabIndex = 1;
+            btnAADConfig.Text = "AAD Configuration";
+            btnAADConfig.UseVisualStyleBackColor = true;
+            btnAADConfig.Click += btnAADConfig_Click;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(50, 46);
+            label12.Name = "label12";
+            label12.Size = new Size(104, 20);
+            label12.TabIndex = 26;
+            label12.Text = "429 auto retry:";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(12, 15);
+            label11.Name = "label11";
+            label11.Size = new Size(142, 20);
+            label11.TabIndex = 25;
+            label11.Text = "Authentication type:";
+            // 
+            // cmbAuthType
+            // 
+            cmbAuthType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbAuthType.FormattingEnabled = true;
+            cmbAuthType.Items.AddRange(new object[] { "ACS Key", "AAD Default Auth", "AAD Client Auth" });
+            cmbAuthType.Location = new Point(160, 12);
+            cmbAuthType.Name = "cmbAuthType";
+            cmbAuthType.Size = new Size(161, 28);
+            cmbAuthType.TabIndex = 0;
+            cmbAuthType.SelectedIndexChanged += cmbAuthType_SelectedIndexChanged;
             // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(17, 749);
+            label9.Location = new Point(17, 809);
             label9.Name = "label9";
             label9.Size = new Size(110, 20);
             label9.TabIndex = 19;
@@ -480,16 +529,16 @@
             cmbSendWaitUntil.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSendWaitUntil.FormattingEnabled = true;
             cmbSendWaitUntil.Items.AddRange(new object[] { "Started", "Completed" });
-            cmbSendWaitUntil.Location = new Point(133, 746);
+            cmbSendWaitUntil.Location = new Point(133, 806);
             cmbSendWaitUntil.Margin = new Padding(3, 4, 3, 4);
             cmbSendWaitUntil.Name = "cmbSendWaitUntil";
             cmbSendWaitUntil.Size = new Size(138, 28);
-            cmbSendWaitUntil.TabIndex = 20;
+            cmbSendWaitUntil.TabIndex = 6;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(311, 749);
+            label10.Location = new Point(311, 809);
             label10.Name = "label10";
             label10.Size = new Size(181, 20);
             label10.TabIndex = 21;
@@ -497,39 +546,46 @@
             // 
             // numEmailsToSend
             // 
-            numEmailsToSend.Location = new Point(498, 747);
+            numEmailsToSend.Location = new Point(498, 807);
             numEmailsToSend.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numEmailsToSend.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numEmailsToSend.Name = "numEmailsToSend";
             numEmailsToSend.Size = new Size(73, 27);
-            numEmailsToSend.TabIndex = 22;
+            numEmailsToSend.TabIndex = 7;
             numEmailsToSend.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(label5);
+            panel1.Controls.Add(label2);
+            panel1.Controls.Add(txtFrom);
+            panel1.Controls.Add(txtSubject);
+            panel1.Controls.Add(label6);
+            panel1.Controls.Add(cmbImportance);
+            panel1.Controls.Add(label8);
+            panel1.Location = new Point(0, 103);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(841, 103);
+            panel1.TabIndex = 1;
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1611, 792);
+            ClientSize = new Size(1611, 851);
+            Controls.Add(panel1);
             Controls.Add(numEmailsToSend);
             Controls.Add(label10);
             Controls.Add(cmbSendWaitUntil);
             Controls.Add(label9);
             Controls.Add(pnlInitialize);
-            Controls.Add(label8);
             Controls.Add(groupBox1);
             Controls.Add(grpCustomHeders);
-            Controls.Add(cmbImportance);
-            Controls.Add(label6);
             Controls.Add(grpAttachments);
             Controls.Add(grpReceipents);
             Controls.Add(grpBody);
             Controls.Add(grpTrace);
-            Controls.Add(txtSubject);
-            Controls.Add(txtFrom);
-            Controls.Add(label2);
             Controls.Add(btnSendEmail);
-            Controls.Add(label5);
-            Controls.Add(label1);
             Name = "frmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Email Communication Services";
@@ -549,6 +605,8 @@
             pnlInitialize.ResumeLayout(false);
             pnlInitialize.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -601,5 +659,10 @@
         private ComboBox cmbSendWaitUntil;
         private Label label10;
         private NumericUpDown numEmailsToSend;
+        private Button btnAADConfig;
+        private ComboBox cmbAuthType;
+        private Label label11;
+        private Label label12;
+        private Panel panel1;
     }
 }

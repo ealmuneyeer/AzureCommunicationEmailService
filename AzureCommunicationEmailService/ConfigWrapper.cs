@@ -171,6 +171,26 @@ namespace AzureCommunicationEmailService
         {
             get { return _customHeaders; }
         }
+
+        public string AuthenticationType
+        {
+            get { return _config["AuthenticationType"]; }
+        }
+
+        public string TenantId
+        {
+            get { return _config["TenantId"]; }
+        }
+
+        public string AAD_ClientId
+        {
+            get { return _config["AADClientId"]; }
+        }
+
+        public string AAD_ClientSecret
+        {
+            get { return _config["AADClientSecret"]; }
+        }
     }
 
     internal class ConfigEmailAddress
