@@ -222,20 +222,6 @@ namespace AzureCommunicationEmailService
 
             WaitUntil waitUntil = cmbSendWaitUntil.Text.Equals("Completed", StringComparison.InvariantCultureIgnoreCase) ? WaitUntil.Completed : WaitUntil.Started;
 
-            //// test start;
-            //var credentials = new DefaultAzureCredential();
-            ////var client = new EmailClient(new Uri("https://ebraheemacsus.communication.azure.com/"), credentials); //MS
-            //var client = new EmailClient(new Uri("https://eaper-acs-us.communication.azure.com"), credentials); //Personal
-            //var subject = "Welcome to Azure Communication Service Email APIs.";
-            //var htmlContent = "<html><body><h1>Quick send email test</h1><br/><h4>This email message is sent from Azure Communication Service Email.</h4><p>This mail was sent using .NET SDK!!</p></body></html>";
-            //var senderr = "DoNotReply@1a25d6fc-f0d3-45c1-9d83-e6e7491102ab.azurecomm.net";
-            //var recipient = "ealmuneyeer@microsoft.com";
-
-            //var message = new EmailMessage(senderr, recipient, new EmailContent(subject) { Html = htmlContent });
-            //var emailSendOperation = await client.SendAsync(WaitUntil.Started, message);
-            //// test end
-
-
             //Send multiple emails
             Stopwatch allEmailsStopwatch = new Stopwatch();
             Stopwatch singleEmailstopwatch = new Stopwatch();
