@@ -2,7 +2,7 @@
  Test application for ACS email services
  
 
-You can use this appliction to test Azure Communication Services Email Service https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/email/create-email-communication-resource
+You can use this appliction to test Azure Communication Services Email Service [Prepare Email Communication resource for Azure Communication Service](https://learn.microsoft.com/en-us/azure/communication-services/concepts/email/prepare-email-communication-resource)
 
 ![image](https://github.com/ealmuneyeer/AzureCommunicationEmailService/assets/36260446/05253e40-1bf6-4187-a25e-8440f4f8ae43)
 
