@@ -134,7 +134,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(627, 163);
+            ClientSize = new Size(660, 248);
             ControlBox = false;
             Controls.Add(lblEnvVariablesNote);
             Controls.Add(btnShowSecrets);
