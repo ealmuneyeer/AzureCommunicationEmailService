@@ -43,58 +43,62 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(27, 16);
+            label1.Location = new Point(24, 12);
             label1.Name = "label1";
-            label1.Size = new Size(79, 20);
+            label1.Size = new Size(62, 15);
             label1.TabIndex = 0;
             label1.Text = "Tenant ID: ";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(34, 52);
+            label2.Location = new Point(30, 39);
             label2.Name = "label2";
-            label2.Size = new Size(73, 20);
+            label2.Size = new Size(58, 15);
             label2.TabIndex = 1;
             label2.Text = "Client ID: ";
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(8, 85);
+            label3.Location = new Point(7, 64);
             label3.Name = "label3";
-            label3.Size = new Size(99, 20);
+            label3.Size = new Size(79, 15);
             label3.TabIndex = 2;
             label3.Text = "Client Secret: ";
             // 
             // txtTenantID
             // 
-            txtTenantID.Location = new Point(113, 12);
+            txtTenantID.Location = new Point(99, 9);
+            txtTenantID.Margin = new Padding(3, 2, 3, 2);
             txtTenantID.Name = "txtTenantID";
-            txtTenantID.Size = new Size(394, 27);
+            txtTenantID.Size = new Size(345, 23);
             txtTenantID.TabIndex = 3;
             // 
             // txtClientID
             // 
-            txtClientID.Location = new Point(113, 45);
+            txtClientID.Location = new Point(99, 34);
+            txtClientID.Margin = new Padding(3, 2, 3, 2);
             txtClientID.Name = "txtClientID";
-            txtClientID.Size = new Size(394, 27);
+            txtClientID.Size = new Size(345, 23);
             txtClientID.TabIndex = 4;
             txtClientID.UseSystemPasswordChar = true;
             // 
             // txtClientSecret
             // 
-            txtClientSecret.Location = new Point(113, 79);
+            txtClientSecret.Location = new Point(99, 59);
+            txtClientSecret.Margin = new Padding(3, 2, 3, 2);
             txtClientSecret.Name = "txtClientSecret";
-            txtClientSecret.Size = new Size(394, 27);
+            txtClientSecret.Size = new Size(345, 23);
             txtClientSecret.TabIndex = 5;
             txtClientSecret.UseSystemPasswordChar = true;
             // 
             // btnSave
             // 
-            btnSave.Location = new Point(413, 116);
+            btnSave.Location = new Point(361, 87);
+            btnSave.Margin = new Padding(3, 2, 3, 2);
             btnSave.Name = "btnSave";
-            btnSave.Size = new Size(94, 29);
+            btnSave.Size = new Size(82, 22);
             btnSave.TabIndex = 7;
             btnSave.Text = "Save";
             btnSave.UseVisualStyleBackColor = true;
@@ -102,9 +106,10 @@
             // 
             // btnCancel
             // 
-            btnCancel.Location = new Point(513, 116);
+            btnCancel.Location = new Point(449, 87);
+            btnCancel.Margin = new Padding(3, 2, 3, 2);
             btnCancel.Name = "btnCancel";
-            btnCancel.Size = new Size(94, 29);
+            btnCancel.Size = new Size(82, 22);
             btnCancel.TabIndex = 8;
             btnCancel.Text = "Cancel";
             btnCancel.UseVisualStyleBackColor = true;
@@ -112,9 +117,10 @@
             // 
             // btnShowSecrets
             // 
-            btnShowSecrets.Location = new Point(513, 43);
+            btnShowSecrets.Location = new Point(449, 32);
+            btnShowSecrets.Margin = new Padding(3, 2, 3, 2);
             btnShowSecrets.Name = "btnShowSecrets";
-            btnShowSecrets.Size = new Size(94, 63);
+            btnShowSecrets.Size = new Size(82, 47);
             btnShowSecrets.TabIndex = 6;
             btnShowSecrets.Text = "Show";
             btnShowSecrets.UseVisualStyleBackColor = true;
@@ -123,18 +129,18 @@
             // lblEnvVariablesNote
             // 
             lblEnvVariablesNote.AutoSize = true;
-            lblEnvVariablesNote.Location = new Point(8, -4);
+            lblEnvVariablesNote.Location = new Point(7, -3);
             lblEnvVariablesNote.Name = "lblEnvVariablesNote";
-            lblEnvVariablesNote.Size = new Size(488, 20);
+            lblEnvVariablesNote.Size = new Size(390, 15);
             lblEnvVariablesNote.TabIndex = 11;
             lblEnvVariablesNote.Text = "Environment variables can be modified in advanced system settings only";
             lblEnvVariablesNote.Visible = false;
             // 
             // frmAADAuthentication
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(660, 248);
+            ClientSize = new Size(550, 134);
             ControlBox = false;
             Controls.Add(lblEnvVariablesNote);
             Controls.Add(btnShowSecrets);
@@ -146,7 +152,7 @@
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(3, 2, 3, 2);
             Name = "frmAADAuthentication";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "AAD Authentication Configuration";

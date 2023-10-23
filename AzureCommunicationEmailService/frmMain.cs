@@ -33,6 +33,7 @@ namespace AzureCommunicationEmailService
         private const int DRP_AUTH_TYPE_ACS_KEY_INDEX = 0;
         private const int DRP_AUTH_TYPE_AAD_DEFAULT_INDEX = 1;
         private const int DRP_AUTH_TYPE_AAD_CLIENT_INDEX = 2;
+        private const int DRP_AUTH_TYPE_INTERACTIVE_INDEX = 3;
 
         private System.Timers.Timer _checkMessageStatusTimer;
         private ConcurrentDictionary<EmailSendOperation, DateTime> _messages = new ConcurrentDictionary<EmailSendOperation, DateTime>(); //Key: EmailSendOperation, value: when to check for update
@@ -391,6 +392,10 @@ namespace AzureCommunicationEmailService
             {
                 cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_AAD_CLIENT_INDEX;
             }
+            else if (authType.Equals(Helpers.AuthenticationType.AAD_INTERACTIVE, StringComparison.InvariantCultureIgnoreCase))
+            {
+                cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_INTERACTIVE_INDEX;
+            }
             else
             {
                 cmbAuthType.SelectedIndex = DRP_AUTH_TYPE_ACS_KEY_INDEX;
@@ -562,6 +567,12 @@ namespace AzureCommunicationEmailService
                     ClientSecretCredential clientSecretCredential = new ClientSecretCredential(Helpers.ClientCredentials.TenantId, Helpers.ClientCredentials.ClientId, Helpers.ClientCredentials.ClientSecret);
                     Uri endPoint = new Uri(GetEndpoint(txtConnString.Text));
                     _emailClient = new EmailClient(endPoint, clientSecretCredential);
+                }
+                else if (cmbAuthType.SelectedIndex == DRP_AUTH_TYPE_INTERACTIVE_INDEX)
+                {
+                    Uri endPoint = new Uri(GetEndpoint(txtConnString.Text));
+                    _emailClient = new EmailClient(endPoint, new InteractiveBrowserCredential());
+
                 }
 
                 pnlInitialize.Enabled = false;
