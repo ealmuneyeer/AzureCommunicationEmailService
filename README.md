@@ -10,7 +10,7 @@ You can use this appliction to test Azure Communication Services Email Service [
 # Description: -
 You can test different Email Communication Services features by using this tool. For example:
 <ul>
- <li>Authenticate by using ACS connection string or AAD application</li>
+ <li>Authenticate by using ACS connection string, AAD application, or interactive authentication</li>
  <li>Sending email with auto-rety enabled or disabled</li>
  <li>Setting email importance</li>
  <li>Sending plain or HTML email body</li>
