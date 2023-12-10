@@ -102,11 +102,6 @@ namespace AzureCommunicationEmailService
             return result;
         }
 
-        public string ConnectionString
-        {
-            get { return _config["ConnectionString"]; }
-        }
-
         public string Subject
         {
             get { return _config["Subject"]; }
@@ -190,6 +185,29 @@ namespace AzureCommunicationEmailService
         public string AAD_ClientSecret
         {
             get { return _config["AAD_ClientSecret"]; }
+        }
+
+        public string SmtpEndpoint
+        {
+            get { return _config["SmtpEndpoint"]; }
+        }
+
+        public string ACSEndpoint
+        {
+            get { return _config["ACSEndpoint"]; }
+        }
+
+        public string ACSAccessKey
+        {
+            get { return _config["ACSAccessKey"]; }
+        }
+
+        public int SmtpPort
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_config["SmtpPort"]) ? 0 : Convert.ToInt32(_config["SmtpPort"]);
+            }
         }
     }
 

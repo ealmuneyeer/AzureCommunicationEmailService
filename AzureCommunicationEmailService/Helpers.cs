@@ -37,6 +37,7 @@ namespace AzureCommunicationEmailService
         }
 
         public static AADCredentials EnvironmentVarCredentials { get; internal set; } = new AADCredentials();
+
         public static AADCredentials ClientCredentials { get; internal set; } = new AADCredentials();
 
         public static void UpdateClientCredentials(string tenantID, string clientId, string clientSecret)
@@ -54,5 +55,25 @@ namespace AzureCommunicationEmailService
 
             public string ClientSecret { get; internal set; }
         }
+    }
+
+    public class SmtpConfig
+    {
+        public SmtpConfig(string host, int port, string username, string password)
+        {
+            Host = host;
+            Password = password;
+            Port = port;
+            Username = username;
+        }
+
+        public string Host { get; private set; }
+
+        public string Password { get; private set; }
+
+        public int Port { get; private set; }
+
+        public string Username { get; private set; }
+
     }
 }

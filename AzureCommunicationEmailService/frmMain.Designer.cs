@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
-            txtConnString = new TextBox();
             btnSendEmail = new Button();
             grpAttachments = new GroupBox();
             lblAttachmentsSize = new Label();
@@ -61,7 +59,6 @@
             dgCustomHeaders = new DataGridView();
             colHeaderName = new DataGridViewTextBoxColumn();
             colHeaderValue = new DataGridViewTextBoxColumn();
-            btnInitializeConnString = new Button();
             groupBox1 = new GroupBox();
             btnGetMsgDeliveryStatus = new Button();
             txtMessageID = new TextBox();
@@ -69,8 +66,20 @@
             label8 = new Label();
             chk429AutoRetry = new CheckBox();
             pnlInitialize = new Panel();
-            btnAADConfig = new Button();
+            pnlSmtpConfig = new Panel();
+            label20 = new Label();
+            txtSmtpEndpoint = new TextBox();
+            txtSmtpPort = new TextBox();
+            label16 = new Label();
+            label17 = new Label();
+            btnShowAcsKey = new Button();
+            label19 = new Label();
             label12 = new Label();
+            txtAccessKey = new TextBox();
+            label15 = new Label();
+            txtAcsEndpoint = new TextBox();
+            btnAADConfig = new Button();
+            label14 = new Label();
             label11 = new Label();
             cmbAuthType = new ComboBox();
             label9 = new Label();
@@ -78,6 +87,8 @@
             label10 = new Label();
             numEmailsToSend = new NumericUpDown();
             panel1 = new Panel();
+            btnSendEmailSMTP = new Button();
+            panel2 = new Panel();
             grpAttachments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgAttachments).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgReceipeints).BeginInit();
@@ -88,35 +99,20 @@
             ((System.ComponentModel.ISupportInitialize)dgCustomHeaders).BeginInit();
             groupBox1.SuspendLayout();
             pnlInitialize.SuspendLayout();
+            pnlSmtpConfig.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).BeginInit();
             panel1.SuspendLayout();
+            panel2.SuspendLayout();
             SuspendLayout();
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(23, 54);
-            label1.Name = "label1";
-            label1.Size = new Size(105, 15);
-            label1.TabIndex = 0;
-            label1.Text = "Connection string:";
-            // 
-            // txtConnString
-            // 
-            txtConnString.Location = new Point(140, 52);
-            txtConnString.Margin = new Padding(3, 2, 3, 2);
-            txtConnString.Name = "txtConnString";
-            txtConnString.Size = new Size(537, 23);
-            txtConnString.TabIndex = 3;
             // 
             // btnSendEmail
             // 
-            btnSendEmail.Location = new Point(635, 599);
+            btnSendEmail.Location = new Point(617, 3);
             btnSendEmail.Margin = new Padding(3, 2, 3, 2);
             btnSendEmail.Name = "btnSendEmail";
-            btnSendEmail.Size = new Size(133, 30);
+            btnSendEmail.Size = new Size(135, 30);
             btnSendEmail.TabIndex = 9;
-            btnSendEmail.Text = "Send Email";
+            btnSendEmail.Text = "Send Email via SDK";
             btnSendEmail.UseVisualStyleBackColor = true;
             btnSendEmail.Click += btnSendEmail_Click;
             // 
@@ -128,7 +124,7 @@
             grpAttachments.Controls.Add(lblAttachmentsCount);
             grpAttachments.Controls.Add(dgAttachments);
             grpAttachments.Controls.Add(btnAddAttachment);
-            grpAttachments.Location = new Point(10, 433);
+            grpAttachments.Location = new Point(10, 539);
             grpAttachments.Margin = new Padding(3, 2, 3, 2);
             grpAttachments.Name = "grpAttachments";
             grpAttachments.Padding = new Padding(3, 2, 3, 2);
@@ -234,16 +230,16 @@
             // 
             // txtFrom
             // 
-            txtFrom.Location = new Point(140, 2);
+            txtFrom.Location = new Point(140, 3);
             txtFrom.Margin = new Padding(3, 2, 3, 2);
             txtFrom.Name = "txtFrom";
-            txtFrom.Size = new Size(622, 23);
+            txtFrom.Size = new Size(537, 23);
             txtFrom.TabIndex = 2;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(94, 4);
+            label5.Location = new Point(90, 6);
             label5.Name = "label5";
             label5.Size = new Size(38, 15);
             label5.TabIndex = 6;
@@ -295,16 +291,16 @@
             // 
             // txtSubject
             // 
-            txtSubject.Location = new Point(140, 28);
+            txtSubject.Location = new Point(140, 30);
             txtSubject.Margin = new Padding(3, 2, 3, 2);
             txtSubject.Name = "txtSubject";
-            txtSubject.Size = new Size(622, 23);
+            txtSubject.Size = new Size(537, 23);
             txtSubject.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(81, 30);
+            label2.Location = new Point(79, 33);
             label2.Name = "label2";
             label2.Size = new Size(49, 15);
             label2.TabIndex = 0;
@@ -317,7 +313,7 @@
             grpTrace.Margin = new Padding(3, 2, 3, 2);
             grpTrace.Name = "grpTrace";
             grpTrace.Padding = new Padding(3, 2, 3, 2);
-            grpTrace.Size = new Size(658, 566);
+            grpTrace.Size = new Size(658, 678);
             grpTrace.TabIndex = 11;
             grpTrace.TabStop = false;
             grpTrace.Text = "Trace";
@@ -330,14 +326,14 @@
             txtTrace.Multiline = true;
             txtTrace.Name = "txtTrace";
             txtTrace.ScrollBars = ScrollBars.Vertical;
-            txtTrace.Size = new Size(648, 539);
+            txtTrace.Size = new Size(648, 654);
             txtTrace.TabIndex = 0;
             // 
             // grpBody
             // 
             grpBody.Controls.Add(chkIsHtmlBody);
             grpBody.Controls.Add(txtBody);
-            grpBody.Location = new Point(10, 157);
+            grpBody.Location = new Point(10, 263);
             grpBody.Margin = new Padding(3, 2, 3, 2);
             grpBody.Name = "grpBody";
             grpBody.Padding = new Padding(3, 2, 3, 2);
@@ -349,7 +345,7 @@
             // grpReceipents
             // 
             grpReceipents.Controls.Add(dgReceipeints);
-            grpReceipents.Location = new Point(10, 294);
+            grpReceipents.Location = new Point(10, 400);
             grpReceipents.Margin = new Padding(3, 2, 3, 2);
             grpReceipents.Name = "grpReceipents";
             grpReceipents.Padding = new Padding(3, 2, 3, 2);
@@ -361,7 +357,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(58, 54);
+            label6.Location = new Point(57, 60);
             label6.Name = "label6";
             label6.Size = new Size(71, 15);
             label6.TabIndex = 15;
@@ -373,16 +369,16 @@
             cmbImportance.FormattingEnabled = true;
             cmbImportance.ItemHeight = 15;
             cmbImportance.Items.AddRange(new object[] { "None", "1", "2", "3", "4", "5" });
-            cmbImportance.Location = new Point(140, 52);
+            cmbImportance.Location = new Point(140, 57);
             cmbImportance.Margin = new Padding(3, 2, 3, 2);
             cmbImportance.Name = "cmbImportance";
-            cmbImportance.Size = new Size(140, 23);
+            cmbImportance.Size = new Size(141, 23);
             cmbImportance.TabIndex = 4;
             // 
             // grpCustomHeders
             // 
             grpCustomHeders.Controls.Add(dgCustomHeaders);
-            grpCustomHeders.Location = new Point(506, 294);
+            grpCustomHeders.Location = new Point(506, 400);
             grpCustomHeders.Margin = new Padding(3, 2, 3, 2);
             grpCustomHeders.Name = "grpCustomHeders";
             grpCustomHeders.Padding = new Padding(3, 2, 3, 2);
@@ -416,17 +412,6 @@
             colHeaderValue.MinimumWidth = 6;
             colHeaderValue.Name = "colHeaderValue";
             colHeaderValue.Width = 90;
-            // 
-            // btnInitializeConnString
-            // 
-            btnInitializeConnString.Location = new Point(683, 51);
-            btnInitializeConnString.Margin = new Padding(3, 2, 3, 2);
-            btnInitializeConnString.Name = "btnInitializeConnString";
-            btnInitializeConnString.Size = new Size(82, 22);
-            btnInitializeConnString.TabIndex = 4;
-            btnInitializeConnString.Text = "Initialize";
-            btnInitializeConnString.UseVisualStyleBackColor = true;
-            btnInitializeConnString.Click += btnInitializeConnString_Click;
             // 
             // groupBox1
             // 
@@ -473,7 +458,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(284, 54);
+            label8.Location = new Point(287, 60);
             label8.Name = "label8";
             label8.Size = new Size(186, 15);
             label8.TabIndex = 18;
@@ -482,7 +467,7 @@
             // chk429AutoRetry
             // 
             chk429AutoRetry.AutoSize = true;
-            chk429AutoRetry.Location = new Point(140, 34);
+            chk429AutoRetry.Location = new Point(140, 153);
             chk429AutoRetry.Margin = new Padding(3, 2, 3, 2);
             chk429AutoRetry.Name = "chk429AutoRetry";
             chk429AutoRetry.Size = new Size(15, 14);
@@ -491,19 +476,131 @@
             // 
             // pnlInitialize
             // 
-            pnlInitialize.Controls.Add(btnAADConfig);
+            pnlInitialize.Controls.Add(pnlSmtpConfig);
+            pnlInitialize.Controls.Add(btnShowAcsKey);
+            pnlInitialize.Controls.Add(label19);
             pnlInitialize.Controls.Add(label12);
+            pnlInitialize.Controls.Add(txtAccessKey);
+            pnlInitialize.Controls.Add(chk429AutoRetry);
+            pnlInitialize.Controls.Add(label15);
+            pnlInitialize.Controls.Add(txtAcsEndpoint);
+            pnlInitialize.Controls.Add(btnAADConfig);
+            pnlInitialize.Controls.Add(label14);
             pnlInitialize.Controls.Add(label11);
             pnlInitialize.Controls.Add(cmbAuthType);
-            pnlInitialize.Controls.Add(chk429AutoRetry);
-            pnlInitialize.Controls.Add(btnInitializeConnString);
-            pnlInitialize.Controls.Add(txtConnString);
-            pnlInitialize.Controls.Add(label1);
             pnlInitialize.Location = new Point(0, 0);
             pnlInitialize.Margin = new Padding(3, 2, 3, 2);
             pnlInitialize.Name = "pnlInitialize";
-            pnlInitialize.Size = new Size(768, 76);
+            pnlInitialize.Size = new Size(768, 171);
             pnlInitialize.TabIndex = 0;
+            // 
+            // pnlSmtpConfig
+            // 
+            pnlSmtpConfig.Controls.Add(label20);
+            pnlSmtpConfig.Controls.Add(txtSmtpEndpoint);
+            pnlSmtpConfig.Controls.Add(txtSmtpPort);
+            pnlSmtpConfig.Controls.Add(label16);
+            pnlSmtpConfig.Controls.Add(label17);
+            pnlSmtpConfig.Location = new Point(8, 94);
+            pnlSmtpConfig.Name = "pnlSmtpConfig";
+            pnlSmtpConfig.Size = new Size(754, 57);
+            pnlSmtpConfig.TabIndex = 38;
+            // 
+            // label20
+            // 
+            label20.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point);
+            label20.Location = new Point(369, 3);
+            label20.Name = "label20";
+            label20.Size = new Size(300, 52);
+            label20.TabIndex = 37;
+            label20.Text = "**These configurations are required if only you want to send emails by using SMTP";
+            label20.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // txtSmtpEndpoint
+            // 
+            txtSmtpEndpoint.Location = new Point(132, 3);
+            txtSmtpEndpoint.Name = "txtSmtpEndpoint";
+            txtSmtpEndpoint.Size = new Size(212, 23);
+            txtSmtpEndpoint.TabIndex = 29;
+            // 
+            // txtSmtpPort
+            // 
+            txtSmtpPort.Location = new Point(132, 32);
+            txtSmtpPort.Name = "txtSmtpPort";
+            txtSmtpPort.Size = new Size(141, 23);
+            txtSmtpPort.TabIndex = 31;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(19, 6);
+            label16.Name = "label16";
+            label16.Size = new Size(101, 15);
+            label16.TabIndex = 23;
+            label16.Text = "SMTP endpoint**:";
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(45, 35);
+            label17.Name = "label17";
+            label17.Size = new Size(75, 15);
+            label17.TabIndex = 30;
+            label17.Text = "SMTP port**:";
+            // 
+            // btnShowAcsKey
+            // 
+            btnShowAcsKey.Location = new Point(680, 68);
+            btnShowAcsKey.Margin = new Padding(3, 2, 3, 2);
+            btnShowAcsKey.Name = "btnShowAcsKey";
+            btnShowAcsKey.Size = new Size(82, 22);
+            btnShowAcsKey.TabIndex = 35;
+            btnShowAcsKey.Text = "Show";
+            btnShowAcsKey.UseVisualStyleBackColor = true;
+            btnShowAcsKey.Click += btnShowAcsKey_Click;
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point);
+            label19.Location = new Point(436, 13);
+            label19.Name = "label19";
+            label19.Size = new Size(295, 15);
+            label19.TabIndex = 34;
+            label19.Text = "*SMTP is only supported with AAD Default/Client Auth";
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(46, 152);
+            label12.Name = "label12";
+            label12.Size = new Size(82, 15);
+            label12.TabIndex = 26;
+            label12.Text = "429 auto retry:";
+            // 
+            // txtAccessKey
+            // 
+            txtAccessKey.Location = new Point(140, 67);
+            txtAccessKey.Name = "txtAccessKey";
+            txtAccessKey.Size = new Size(537, 23);
+            txtAccessKey.TabIndex = 28;
+            txtAccessKey.UseSystemPasswordChar = true;
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(75, 70);
+            label15.Name = "label15";
+            label15.Size = new Size(53, 15);
+            label15.TabIndex = 27;
+            label15.Text = "ACS key:";
+            // 
+            // txtAcsEndpoint
+            // 
+            txtAcsEndpoint.Location = new Point(140, 38);
+            txtAcsEndpoint.Name = "txtAcsEndpoint";
+            txtAcsEndpoint.Size = new Size(537, 23);
+            txtAcsEndpoint.TabIndex = 27;
             // 
             // btnAADConfig
             // 
@@ -516,23 +613,23 @@
             btnAADConfig.UseVisualStyleBackColor = true;
             btnAADConfig.Click += btnAADConfig_Click;
             // 
-            // label12
+            // label14
             // 
-            label12.AutoSize = true;
-            label12.Location = new Point(44, 34);
-            label12.Name = "label12";
-            label12.Size = new Size(82, 15);
-            label12.TabIndex = 26;
-            label12.Text = "429 auto retry:";
+            label14.AutoSize = true;
+            label14.Location = new Point(45, 41);
+            label14.Name = "label14";
+            label14.Size = new Size(83, 15);
+            label14.TabIndex = 26;
+            label14.Text = "ACS endpoint:";
             // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(10, 11);
+            label11.Location = new Point(8, 13);
             label11.Name = "label11";
-            label11.Size = new Size(115, 15);
+            label11.Size = new Size(120, 15);
             label11.TabIndex = 25;
-            label11.Text = "Authentication type:";
+            label11.Text = "Authentication type*:";
             // 
             // cmbAuthType
             // 
@@ -549,7 +646,7 @@
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(15, 607);
+            label9.Location = new Point(5, 8);
             label9.Name = "label9";
             label9.Size = new Size(88, 15);
             label9.TabIndex = 19;
@@ -560,7 +657,7 @@
             cmbSendWaitUntil.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSendWaitUntil.FormattingEnabled = true;
             cmbSendWaitUntil.Items.AddRange(new object[] { "Started", "Completed" });
-            cmbSendWaitUntil.Location = new Point(116, 604);
+            cmbSendWaitUntil.Location = new Point(99, 3);
             cmbSendWaitUntil.Name = "cmbSendWaitUntil";
             cmbSendWaitUntil.Size = new Size(121, 23);
             cmbSendWaitUntil.TabIndex = 6;
@@ -568,7 +665,7 @@
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(272, 607);
+            label10.Location = new Point(226, 8);
             label10.Name = "label10";
             label10.Size = new Size(144, 15);
             label10.TabIndex = 21;
@@ -576,7 +673,7 @@
             // 
             // numEmailsToSend
             // 
-            numEmailsToSend.Location = new Point(436, 605);
+            numEmailsToSend.Location = new Point(376, 4);
             numEmailsToSend.Margin = new Padding(3, 2, 3, 2);
             numEmailsToSend.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numEmailsToSend.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
@@ -594,22 +691,41 @@
             panel1.Controls.Add(label6);
             panel1.Controls.Add(cmbImportance);
             panel1.Controls.Add(label8);
-            panel1.Location = new Point(0, 77);
+            panel1.Location = new Point(0, 175);
             panel1.Margin = new Padding(3, 2, 3, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(768, 77);
+            panel1.Size = new Size(768, 84);
             panel1.TabIndex = 1;
+            // 
+            // btnSendEmailSMTP
+            // 
+            btnSendEmailSMTP.Location = new Point(476, 3);
+            btnSendEmailSMTP.Name = "btnSendEmailSMTP";
+            btnSendEmailSMTP.Size = new Size(135, 30);
+            btnSendEmailSMTP.TabIndex = 22;
+            btnSendEmailSMTP.Text = "Send Email via SMTP*";
+            btnSendEmailSMTP.UseVisualStyleBackColor = true;
+            btnSendEmailSMTP.Click += btnSendEmailSMTP_Click;
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(btnSendEmailSMTP);
+            panel2.Controls.Add(label9);
+            panel2.Controls.Add(btnSendEmail);
+            panel2.Controls.Add(numEmailsToSend);
+            panel2.Controls.Add(cmbSendWaitUntil);
+            panel2.Controls.Add(label10);
+            panel2.Location = new Point(10, 705);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(758, 36);
+            panel2.TabIndex = 23;
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1438, 638);
+            ClientSize = new Size(1438, 753);
             Controls.Add(panel1);
-            Controls.Add(numEmailsToSend);
-            Controls.Add(label10);
-            Controls.Add(cmbSendWaitUntil);
-            Controls.Add(label9);
             Controls.Add(pnlInitialize);
             Controls.Add(groupBox1);
             Controls.Add(grpCustomHeders);
@@ -617,7 +733,7 @@
             Controls.Add(grpReceipents);
             Controls.Add(grpBody);
             Controls.Add(grpTrace);
-            Controls.Add(btnSendEmail);
+            Controls.Add(panel2);
             Margin = new Padding(3, 2, 3, 2);
             Name = "frmMain";
             StartPosition = FormStartPosition.CenterScreen;
@@ -637,17 +753,17 @@
             groupBox1.PerformLayout();
             pnlInitialize.ResumeLayout(false);
             pnlInitialize.PerformLayout();
+            pnlSmtpConfig.ResumeLayout(false);
+            pnlSmtpConfig.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-
-        private Label label1;
-        private TextBox txtConnString;
         private Button btnSendEmail;
         private TextBox txtSubject;
         private Label label2;
@@ -671,7 +787,6 @@
         private ComboBox cmbImportance;
         private GroupBox grpCustomHeders;
         private DataGridView dgCustomHeaders;
-        private Button btnInitializeConnString;
         private GroupBox groupBox1;
         private Button btnGetMsgDeliveryStatus;
         private TextBox txtMessageID;
@@ -697,5 +812,19 @@
         private DataGridViewTextBoxColumn attachFilePath;
         private DataGridViewTextBoxColumn attachType;
         private DataGridViewTextBoxColumn attachSize;
+        private Button btnSendEmailSMTP;
+        private Panel panel2;
+        private Label label14;
+        private Label label15;
+        private TextBox txtAcsEndpoint;
+        private TextBox txtAccessKey;
+        private Label label16;
+        private TextBox txtSmtpEndpoint;
+        private Label label17;
+        private TextBox txtSmtpPort;
+        private Label label19;
+        private Button btnShowAcsKey;
+        private Label label20;
+        private Panel pnlSmtpConfig;
     }
 }
