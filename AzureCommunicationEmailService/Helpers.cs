@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Azure;
+using Azure.Communication.Email;
+using Azure.Core;
+using Azure.Identity;
+using AzureCommunicationEmailService.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,19 +13,16 @@ namespace AzureCommunicationEmailService
 {
     public static class Helpers
     {
-        public class EnvironmentVariable
-        {
-            public const string AZURE_TENANT_ID = "AZURE_TENANT_ID";
-            public const string AZURE_CLIENT_ID = "AZURE_CLIENT_ID";
-            public const string AZURE_CLIENT_SECRET = "AZURE_CLIENT_SECRET";
-        }
+        public static Version ApplicationVersion { get; set; }
 
-        public class AuthenticationType
+        public static AADCredentials EnvironmentVarCredentials { get; internal set; } = new AADCredentials();
+
+        public static AADCredentials ClientCredentials { get; internal set; } = new AADCredentials();
+
+        public enum CredentialsSource
         {
-            public const string ACS_KEY = "AcsKey";
-            public const string AAD_DEFAULT_CREDENTIALS = "AadDefaultCredentials";
-            public const string AAD_CLIENT_SECRESTS = "AADClientSecret";
-            public const string AAD_INTERACTIVE = "Interactive";
+            AppSettings,
+            EnvironmentVariables
         }
 
         static Helpers()
@@ -30,16 +32,6 @@ namespace AzureCommunicationEmailService
             EnvironmentVarCredentials.ClientSecret = Environment.GetEnvironmentVariable(EnvironmentVariable.AZURE_CLIENT_SECRET) ?? "";
         }
 
-        public enum CredentialsSource
-        {
-            AppSettings,
-            EnvironmentVariables
-        }
-
-        public static AADCredentials EnvironmentVarCredentials { get; internal set; } = new AADCredentials();
-
-        public static AADCredentials ClientCredentials { get; internal set; } = new AADCredentials();
-
         public static void UpdateClientCredentials(string tenantID, string clientId, string clientSecret)
         {
             ClientCredentials.TenantId = tenantID;
@@ -47,33 +39,44 @@ namespace AzureCommunicationEmailService
             ClientCredentials.ClientSecret = clientSecret;
         }
 
-        public class AADCredentials
+        public static string GetAcsResourceName(string endpoint)
         {
-            public string TenantId { get; internal set; }
-
-            public string ClientId { get; internal set; }
-
-            public string ClientSecret { get; internal set; }
-        }
-    }
-
-    public class SmtpConfig
-    {
-        public SmtpConfig(string host, int port, string username, string password)
-        {
-            Host = host;
-            Password = password;
-            Port = port;
-            Username = username;
+            return endpoint.Trim().Substring(0, endpoint.IndexOf('.')).Substring(endpoint.IndexOf('/') + 2);
         }
 
-        public string Host { get; private set; }
+        public static EmailClient GetEmailClient(EmailClientConfiguration clientConfiguration)
+        {
+            EmailClientOptions emailClientOptions = null;
+            EmailClient emailClient = null;
 
-        public string Password { get; private set; }
+            if (clientConfiguration.AutoRetryOn429 == false)
+            {
+                emailClientOptions = new EmailClientOptions();
+                emailClientOptions.AddPolicy(new Catch429Policy(), HttpPipelinePosition.PerRetry);
+            }
 
-        public int Port { get; private set; }
+            if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AcsKey)
+            {
+                emailClient = new EmailClient(new Uri(clientConfiguration.AcsEndpoint), new AzureKeyCredential(clientConfiguration.AcsKey), emailClientOptions);
+            }
+            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADDefaultCredentials)
+            {
+                Uri endPoint = new Uri(clientConfiguration.AcsEndpoint);
+                emailClient = new EmailClient(endPoint, new DefaultAzureCredential(), emailClientOptions);
+            }
+            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADClientSecrets)
+            {
+                ClientSecretCredential clientSecretCredential = new ClientSecretCredential(clientConfiguration.Credentials.TenantId, clientConfiguration.Credentials.ClientId, clientConfiguration.Credentials.ClientSecret);
+                Uri endPoint = new Uri(clientConfiguration.AcsEndpoint);
+                emailClient = new EmailClient(endPoint, clientSecretCredential, emailClientOptions);
+            }
+            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.Interactive)
+            {
+                Uri endPoint = new Uri(clientConfiguration.AcsEndpoint);
+                emailClient = new EmailClient(endPoint, new InteractiveBrowserCredential(), emailClientOptions);
+            }
 
-        public string Username { get; private set; }
-
+            return emailClient;
+        }
     }
 }

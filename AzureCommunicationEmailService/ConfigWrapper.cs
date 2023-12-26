@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using AzureCommunicationEmailService.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace AzureCommunicationEmailService
@@ -10,39 +13,30 @@ namespace AzureCommunicationEmailService
     internal class ConfigWrapper
     {
         private readonly IConfiguration _config;
-        private List<ConfigEmailAddress> _to;
-        private List<ConfigEmailAddress> _cc;
-        private List<ConfigEmailAddress> _bcc;
-        private List<ConfigEmailAddress> _replyTo;
-
-        private List<CustomHeader> _customHeaders;
-
-        private List<string> _attachmentPaths;
-
-        private int? _importance = null;
-
 
         public ConfigWrapper(IConfiguration config)
         {
             _config = config;
 
-            _to = ParseEmailList(_config["To"]);
-            _cc = ParseEmailList(_config["CC"]);
-            _bcc = ParseEmailList(_config["BCC"]);
-            _replyTo = ParseEmailList(_config["ReplyTo"]);
+            To = ParseEmailList(_config[AppConfigKeys.TO]);
+            CC = ParseEmailList(_config[AppConfigKeys.CC]);
+            BCC = ParseEmailList(_config[AppConfigKeys.BCC]);
+            ReplyTo = ParseEmailList(_config[AppConfigKeys.REPLY_TO]);
 
-            _customHeaders = ParseCustomHeaders(_config["CustomHeaders"]);
+            CustomHeaders = ParseCustomHeaders(_config[AppConfigKeys.CUSTOM_HEADERS]);
 
-            _importance = GetEmailImportance(_config["Importance"]);
+            Importance = GetEmailImportance(_config[AppConfigKeys.IMPORTANCE]);
 
-            _attachmentPaths = ParseAttachmentPaths(_config["Attachments"]);
+            Attachments = ParseAttachmentPaths(_config[AppConfigKeys.ATTACHMENTS]);
+
+            SmtpPort = string.IsNullOrEmpty(_config[AppConfigKeys.SMTP_PORT]) ? 0 : Convert.ToInt32(_config[AppConfigKeys.SMTP_PORT]);
         }
 
-        private List<ConfigEmailAddress> ParseEmailList(string emailList)
+        private List<MailAddress> ParseEmailList(string emailList)
         {
-            List<ConfigEmailAddress> result = new List<ConfigEmailAddress>();
+            List<MailAddress> result = new List<MailAddress>();
 
-            if (!String.IsNullOrEmpty(emailList.Trim()))
+            if (!string.IsNullOrEmpty(emailList.Trim()))
             {
                 string[] emailArray = emailList.Split(';').Select(e => e.Trim()).ToArray();
                 string[] contactInfo;
@@ -52,7 +46,7 @@ namespace AzureCommunicationEmailService
                     contactInfo = contact.Split(',').Select(i => i.Trim()).ToArray();
                     if (contactInfo.Length == 2)
                     {
-                        result.Add(new ConfigEmailAddress(contactInfo[0].Trim(), contactInfo[1].Trim()));
+                        result.Add(new MailAddress(contactInfo[1].Trim(), contactInfo[0].Trim()));
                     }
                 }
             }
@@ -64,7 +58,7 @@ namespace AzureCommunicationEmailService
         {
             List<CustomHeader> result = new List<CustomHeader>();
 
-            if (!String.IsNullOrEmpty(customHeaders))
+            if (!string.IsNullOrEmpty(customHeaders))
             {
                 string[] customHeaderArray = customHeaders.Split(';').Select(h => h.Trim()).ToArray();
                 string[] nameValuePair;
@@ -104,42 +98,30 @@ namespace AzureCommunicationEmailService
 
         public string Subject
         {
-            get { return _config["Subject"]; }
+            get { return _config[AppConfigKeys.SUBJECT]; }
         }
 
         public string Body
         {
-            get { return _config["Body"]; }
+            get { return _config[AppConfigKeys.BODY]; }
         }
 
         public string From
         {
-            get { return _config["From"]; }
+            get { return _config[AppConfigKeys.FROM]; }
         }
 
-        public List<ConfigEmailAddress> To
-        {
-            get { return _to; }
-        }
+        public List<MailAddress> To { get; private set; }
 
-        public List<ConfigEmailAddress> CC
-        {
-            get { return _cc; }
-        }
+        public List<MailAddress> CC { get; private set; }
 
-        public List<ConfigEmailAddress> BCC
-        {
-            get { return _bcc; }
-        }
+        public List<MailAddress> BCC { get; private set; }
 
-        public List<ConfigEmailAddress> ReplyTo
-        {
-            get { return _replyTo; }
-        }
+        public List<MailAddress> ReplyTo { get; private set; }
 
         public string HtmlBody
         {
-            get { return _config["HtmlBody"]; }
+            get { return _config[AppConfigKeys.HTML_BODY]; }
         }
 
         public bool UseHtmlBody
@@ -147,93 +129,52 @@ namespace AzureCommunicationEmailService
             get
             {
                 bool useHtmlBody;
-                bool.TryParse(_config["UseHtmlBody"], out useHtmlBody);
+                bool.TryParse(_config[AppConfigKeys.USE_HTML_BODY], out useHtmlBody);
                 return useHtmlBody;
             }
         }
 
-        public List<string> Attachments
-        {
-            get { return _attachmentPaths; }
-        }
+        public List<string> Attachments { get; private set; }
 
-        public int? Importance
-        {
-            get { return _importance; }
-        }
+        public int? Importance { get; private set; }
 
-        public List<CustomHeader> CustomHeaders
-        {
-            get { return _customHeaders; }
-        }
+        public List<CustomHeader> CustomHeaders { get; private set; }
 
         public string AuthenticationType
         {
-            get { return _config["AuthenticationType"]; }
+            get { return _config[AppConfigKeys.AUTHENTICATION_TYPE]; }
         }
 
         public string TenantId
         {
-            get { return _config["TenantId"]; }
+            get { return _config[AppConfigKeys.TENANT_ID]; }
         }
 
         public string AAD_ClientId
         {
-            get { return _config["AAD_ClientId"]; }
+            get { return _config[AppConfigKeys.AAD_CLIENT_ID]; }
         }
 
         public string AAD_ClientSecret
         {
-            get { return _config["AAD_ClientSecret"]; }
+            get { return _config[AppConfigKeys.AAD_CLIENT_SECRET]; }
         }
 
         public string SmtpEndpoint
         {
-            get { return _config["SmtpEndpoint"]; }
+            get { return _config[AppConfigKeys.SMTP_ENDPOINT]; }
         }
 
         public string ACSEndpoint
         {
-            get { return _config["ACSEndpoint"]; }
+            get { return _config[AppConfigKeys.ACS_ENDPOINT]; }
         }
 
         public string ACSAccessKey
         {
-            get { return _config["ACSAccessKey"]; }
+            get { return _config[AppConfigKeys.ACS_ACCESS_KEY]; }
         }
 
-        public int SmtpPort
-        {
-            get
-            {
-                return string.IsNullOrEmpty(_config["SmtpPort"]) ? 0 : Convert.ToInt32(_config["SmtpPort"]);
-            }
-        }
-    }
-
-    internal class ConfigEmailAddress
-    {
-        public ConfigEmailAddress(string displayName, string email)
-        {
-            DisplayName = displayName;
-            Email = email;
-        }
-
-        public string DisplayName { get; private set; }
-
-        public string Email { get; private set; }
-    }
-
-    internal class CustomHeader
-    {
-        public CustomHeader(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
-
-        public string Name { get; private set; }
-
-        public string Value { get; private set; }
+        public int SmtpPort { get; private set; }
     }
 }

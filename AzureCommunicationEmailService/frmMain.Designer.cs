@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            btnSendEmail = new Button();
             grpAttachments = new GroupBox();
             lblAttachmentsSize = new Label();
             label4 = new Label();
@@ -82,13 +81,16 @@
             label14 = new Label();
             label11 = new Label();
             cmbAuthType = new ComboBox();
+            cmbClientType = new ComboBox();
             label9 = new Label();
             cmbSendWaitUntil = new ComboBox();
             label10 = new Label();
             numEmailsToSend = new NumericUpDown();
             panel1 = new Panel();
-            btnSendEmailSMTP = new Button();
+            btnSendEmail = new Button();
             panel2 = new Panel();
+            btnStopSendingEmail = new Button();
+            label1 = new Label();
             grpAttachments.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgAttachments).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgReceipeints).BeginInit();
@@ -104,17 +106,6 @@
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
-            // 
-            // btnSendEmail
-            // 
-            btnSendEmail.Location = new Point(617, 3);
-            btnSendEmail.Margin = new Padding(3, 2, 3, 2);
-            btnSendEmail.Name = "btnSendEmail";
-            btnSendEmail.Size = new Size(135, 30);
-            btnSendEmail.TabIndex = 9;
-            btnSendEmail.Text = "Send Email via SDK";
-            btnSendEmail.UseVisualStyleBackColor = true;
-            btnSendEmail.Click += btnSendEmail_Click;
             // 
             // grpAttachments
             // 
@@ -313,7 +304,7 @@
             grpTrace.Margin = new Padding(3, 2, 3, 2);
             grpTrace.Name = "grpTrace";
             grpTrace.Padding = new Padding(3, 2, 3, 2);
-            grpTrace.Size = new Size(658, 678);
+            grpTrace.Size = new Size(658, 705);
             grpTrace.TabIndex = 11;
             grpTrace.TabStop = false;
             grpTrace.Text = "Trace";
@@ -326,7 +317,7 @@
             txtTrace.Multiline = true;
             txtTrace.Name = "txtTrace";
             txtTrace.ScrollBars = ScrollBars.Vertical;
-            txtTrace.Size = new Size(648, 654);
+            txtTrace.Size = new Size(648, 679);
             txtTrace.TabIndex = 0;
             // 
             // grpBody
@@ -471,7 +462,7 @@
             chk429AutoRetry.Margin = new Padding(3, 2, 3, 2);
             chk429AutoRetry.Name = "chk429AutoRetry";
             chk429AutoRetry.Size = new Size(15, 14);
-            chk429AutoRetry.TabIndex = 2;
+            chk429AutoRetry.TabIndex = 6;
             chk429AutoRetry.UseVisualStyleBackColor = true;
             // 
             // pnlInitialize
@@ -504,7 +495,7 @@
             pnlSmtpConfig.Location = new Point(8, 94);
             pnlSmtpConfig.Name = "pnlSmtpConfig";
             pnlSmtpConfig.Size = new Size(754, 57);
-            pnlSmtpConfig.TabIndex = 38;
+            pnlSmtpConfig.TabIndex = 5;
             // 
             // label20
             // 
@@ -554,7 +545,7 @@
             btnShowAcsKey.Margin = new Padding(3, 2, 3, 2);
             btnShowAcsKey.Name = "btnShowAcsKey";
             btnShowAcsKey.Size = new Size(82, 22);
-            btnShowAcsKey.TabIndex = 35;
+            btnShowAcsKey.TabIndex = 4;
             btnShowAcsKey.Text = "Show";
             btnShowAcsKey.UseVisualStyleBackColor = true;
             btnShowAcsKey.Click += btnShowAcsKey_Click;
@@ -583,7 +574,7 @@
             txtAccessKey.Location = new Point(140, 67);
             txtAccessKey.Name = "txtAccessKey";
             txtAccessKey.Size = new Size(537, 23);
-            txtAccessKey.TabIndex = 28;
+            txtAccessKey.TabIndex = 3;
             txtAccessKey.UseSystemPasswordChar = true;
             // 
             // label15
@@ -600,7 +591,7 @@
             txtAcsEndpoint.Location = new Point(140, 38);
             txtAcsEndpoint.Name = "txtAcsEndpoint";
             txtAcsEndpoint.Size = new Size(537, 23);
-            txtAcsEndpoint.TabIndex = 27;
+            txtAcsEndpoint.TabIndex = 2;
             // 
             // btnAADConfig
             // 
@@ -643,10 +634,19 @@
             cmbAuthType.TabIndex = 0;
             cmbAuthType.SelectedIndexChanged += cmbAuthType_SelectedIndexChanged;
             // 
+            // cmbClientType
+            // 
+            cmbClientType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbClientType.FormattingEnabled = true;
+            cmbClientType.Location = new Point(371, 21);
+            cmbClientType.Name = "cmbClientType";
+            cmbClientType.Size = new Size(121, 23);
+            cmbClientType.TabIndex = 3;
+            // 
             // label9
             // 
             label9.AutoSize = true;
-            label9.Location = new Point(5, 8);
+            label9.Location = new Point(66, 9);
             label9.Name = "label9";
             label9.Size = new Size(88, 15);
             label9.TabIndex = 19;
@@ -656,30 +656,31 @@
             // 
             cmbSendWaitUntil.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbSendWaitUntil.FormattingEnabled = true;
+            cmbSendWaitUntil.ItemHeight = 15;
             cmbSendWaitUntil.Items.AddRange(new object[] { "Started", "Completed" });
-            cmbSendWaitUntil.Location = new Point(99, 3);
+            cmbSendWaitUntil.Location = new Point(160, 6);
             cmbSendWaitUntil.Name = "cmbSendWaitUntil";
             cmbSendWaitUntil.Size = new Size(121, 23);
-            cmbSendWaitUntil.TabIndex = 6;
+            cmbSendWaitUntil.TabIndex = 1;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(226, 8);
+            label10.Location = new Point(7, 39);
             label10.Name = "label10";
-            label10.Size = new Size(144, 15);
+            label10.Size = new Size(147, 15);
             label10.TabIndex = 21;
-            label10.Text = "Number of emails to send";
+            label10.Text = "Number of emails to send:";
             // 
             // numEmailsToSend
             // 
-            numEmailsToSend.Location = new Point(376, 4);
+            numEmailsToSend.Location = new Point(160, 34);
             numEmailsToSend.Margin = new Padding(3, 2, 3, 2);
             numEmailsToSend.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numEmailsToSend.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             numEmailsToSend.Name = "numEmailsToSend";
-            numEmailsToSend.Size = new Size(64, 23);
-            numEmailsToSend.TabIndex = 7;
+            numEmailsToSend.Size = new Size(121, 23);
+            numEmailsToSend.TabIndex = 2;
             numEmailsToSend.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // panel1
@@ -697,34 +698,55 @@
             panel1.Size = new Size(768, 84);
             panel1.TabIndex = 1;
             // 
-            // btnSendEmailSMTP
+            // btnSendEmail
             // 
-            btnSendEmailSMTP.Location = new Point(476, 3);
-            btnSendEmailSMTP.Name = "btnSendEmailSMTP";
-            btnSendEmailSMTP.Size = new Size(135, 30);
-            btnSendEmailSMTP.TabIndex = 22;
-            btnSendEmailSMTP.Text = "Send Email via SMTP*";
-            btnSendEmailSMTP.UseVisualStyleBackColor = true;
-            btnSendEmailSMTP.Click += btnSendEmailSMTP_Click;
+            btnSendEmail.Location = new Point(506, 6);
+            btnSendEmail.Name = "btnSendEmail";
+            btnSendEmail.Size = new Size(150, 51);
+            btnSendEmail.TabIndex = 4;
+            btnSendEmail.Text = "Start sending email(s)";
+            btnSendEmail.UseVisualStyleBackColor = true;
+            btnSendEmail.Click += btnSendEmail_Click;
             // 
             // panel2
             // 
-            panel2.Controls.Add(btnSendEmailSMTP);
-            panel2.Controls.Add(label9);
+            panel2.Controls.Add(btnStopSendingEmail);
             panel2.Controls.Add(btnSendEmail);
+            panel2.Controls.Add(label1);
+            panel2.Controls.Add(cmbClientType);
+            panel2.Controls.Add(label9);
             panel2.Controls.Add(numEmailsToSend);
             panel2.Controls.Add(cmbSendWaitUntil);
             panel2.Controls.Add(label10);
             panel2.Location = new Point(10, 705);
             panel2.Name = "panel2";
-            panel2.Size = new Size(758, 36);
-            panel2.TabIndex = 23;
+            panel2.Size = new Size(758, 63);
+            panel2.TabIndex = 7;
+            // 
+            // btnStopSendingEmail
+            // 
+            btnStopSendingEmail.Location = new Point(662, 6);
+            btnStopSendingEmail.Name = "btnStopSendingEmail";
+            btnStopSendingEmail.Size = new Size(90, 51);
+            btnStopSendingEmail.TabIndex = 5;
+            btnStopSendingEmail.Text = "Stop sending email(s)";
+            btnStopSendingEmail.UseVisualStyleBackColor = true;
+            btnStopSendingEmail.Click += btnStopSendingEmail_Click;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(311, 24);
+            label1.Name = "label1";
+            label1.Size = new Size(54, 15);
+            label1.TabIndex = 22;
+            label1.Text = "Send via:";
             // 
             // frmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1438, 753);
+            ClientSize = new Size(1438, 783);
             Controls.Add(panel1);
             Controls.Add(pnlInitialize);
             Controls.Add(groupBox1);
@@ -764,7 +786,6 @@
         }
 
         #endregion
-        private Button btnSendEmail;
         private TextBox txtSubject;
         private Label label2;
         private TextBox txtBody;
@@ -812,7 +833,6 @@
         private DataGridViewTextBoxColumn attachFilePath;
         private DataGridViewTextBoxColumn attachType;
         private DataGridViewTextBoxColumn attachSize;
-        private Button btnSendEmailSMTP;
         private Panel panel2;
         private Label label14;
         private Label label15;
@@ -826,5 +846,9 @@
         private Button btnShowAcsKey;
         private Label label20;
         private Panel pnlSmtpConfig;
+        private Button btnSendEmail;
+        private ComboBox cmbClientType;
+        private Label label1;
+        private Button btnStopSendingEmail;
     }
 }

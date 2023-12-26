@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AzureCommunicationEmailService.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,9 +14,9 @@ namespace AzureCommunicationEmailService
     public partial class frmAADAuthentication : Form
     {
         private Helpers.CredentialsSource _valueSource;
-        private Helpers.AADCredentials _credentials;
+        private AADCredentials _credentials;
 
-        public frmAADAuthentication(Helpers.CredentialsSource source, Helpers.AADCredentials credentials)
+        public frmAADAuthentication(Helpers.CredentialsSource source, AADCredentials credentials)
         {
             InitializeComponent();
 
