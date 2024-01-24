@@ -19,7 +19,7 @@ namespace AzureCommunicationEmailService.EmailManagers
         #region Variables
         internal const string TIME_ELAPSED_FORMAT = "mm\\:ss\\.fff";
 
-        internal bool StopSendingEmailsReceived { get; private set; }
+        internal virtual bool StopSendingEmailsReceived { get; set; }
 
         public bool? IsInitialized { get; private set; } = null;
 

@@ -12,7 +12,39 @@ namespace AzureCommunicationEmailService.EmailManagers
         #region Variables
         internal override string Name { get { return "SDK client"; } }
 
+        internal override bool StopSendingEmailsReceived
+        {
+            get
+            {
+                return _cancellationToken.IsCancellationRequested;
+            }
+            set
+            {
+                if (value == true)
+                {
+                    _cts.Cancel();
+                }
+                else
+                {
+                    _cts.TryReset();
+                    _cts.Dispose();
+                    _cts = new CancellationTokenSource();
+                    _cancellationToken = _cts.Token;
+                }
+
+            }
+        }
+
         private EmailClient _emailClient;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private CancellationToken _cancellationToken;
+        #endregion
+
+        #region Constructor
+        public AcsSdkManager()
+        {
+            _cancellationToken = _cts.Token;
+        }
         #endregion
 
         #region Internal functions
@@ -112,7 +144,7 @@ namespace AzureCommunicationEmailService.EmailManagers
 
                 singleEmailstopwatch.Restart();
 
-                emailSendOperation = _emailClient.SendAsync(payload.WaitUntil, emailMessage).Result;
+                emailSendOperation = _emailClient.SendAsync(payload.WaitUntil, emailMessage, _cancellationToken).Result;
 
                 singleEmailstopwatch.Stop();
 
