@@ -78,5 +78,10 @@ namespace AzureCommunicationEmailService
 
             return emailClient;
         }
+
+        public static string GetFormattedApplicationVersion()
+        {
+            return Helpers.ApplicationVersion.ToString(3);
+        }
     }
 }

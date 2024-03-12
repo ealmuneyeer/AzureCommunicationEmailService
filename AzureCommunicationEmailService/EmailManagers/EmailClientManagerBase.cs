@@ -158,12 +158,12 @@ namespace AzureCommunicationEmailService.EmailManagers
 
         internal virtual string GetEmailManagerSignatureAsHtml()
         {
-            return $"<br/><hr/><div>Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC</div><div>Email Communication Services (v{Helpers.ApplicationVersion.ToString(2)}) - Sent via {Name}</div>";
+            return $"<br/><hr/><div>Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC</div><div>Email Communication Services (v{Helpers.GetFormattedApplicationVersion()}) - Sent via {Name}</div>";
         }
 
         internal virtual string GetEmailManagerSignature()
         {
-            return $"{Environment.NewLine}{"".PadLeft(180, '-')} {Environment.NewLine}Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC {Environment.NewLine}Email Communication Services (v{Helpers.ApplicationVersion.ToString(2)}) - Sent via {Name}";
+            return $"{Environment.NewLine}{"".PadLeft(180, '-')} {Environment.NewLine}Sent at: {DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")} UTC {Environment.NewLine}Email Communication Services (v{Helpers.GetFormattedApplicationVersion()}) - Sent via {Name}";
         }
 
         internal virtual void LogInitializationResult(bool initializationSucceeded, bool? autoRetryEnabled, bool? monitorMsgDelivery, string username)

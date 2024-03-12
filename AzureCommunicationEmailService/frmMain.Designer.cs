@@ -746,6 +746,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoScroll = true;
             ClientSize = new Size(1438, 783);
             Controls.Add(panel1);
             Controls.Add(pnlInitialize);

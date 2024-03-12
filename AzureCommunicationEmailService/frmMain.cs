@@ -65,7 +65,7 @@ namespace AzureCommunicationEmailService
 
             Helpers.ApplicationVersion = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
 
-            this.Text += $" (v{Helpers.ApplicationVersion.ToString(2)})";
+            this.Text += $" (v{Helpers.GetFormattedApplicationVersion()})";
 
             txtAcsEndpoint.Text = configWrapper.ACSEndpoint;
             txtAccessKey.Text = configWrapper.ACSAccessKey;
@@ -109,7 +109,7 @@ namespace AzureCommunicationEmailService
 
             cmbClientType.SelectedIndex = 0;
 
-            WriteTrace($"Application verson: {Helpers.ApplicationVersion.ToString(2)}");
+            WriteTrace($"Application verson: {Helpers.GetFormattedApplicationVersion()}");
         }
 
         private void FillReceipents(List<MailAddress> emails, string type)
