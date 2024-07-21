@@ -257,7 +257,7 @@ namespace AzureCommunicationEmailService
             {
                 cmbAuthType.SelectedIndex = DropAuthTypeIndex.AAD_CLIENT;
             }
-            else if (authType.Equals(AuthenticationType.AAD_INTERACTIVE, StringComparison.InvariantCultureIgnoreCase))
+            else if (authType.Equals(AuthenticationType.INTERACTIVE, StringComparison.InvariantCultureIgnoreCase))
             {
                 cmbAuthType.SelectedIndex = DropAuthTypeIndex.INTERACTIVE;
             }

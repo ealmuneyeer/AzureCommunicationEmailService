@@ -48,6 +48,6 @@ namespace AzureCommunicationEmailService
         public const string ACS_KEY = "AcsKey";
         public const string AAD_DEFAULT_CREDENTIALS = "AadDefaultCredentials";
         public const string AAD_CLIENT_SECRESTS = "AADClientSecret";
-        public const string AAD_INTERACTIVE = "Interactive";
+        public const string INTERACTIVE = "Interactive";
     }
 }

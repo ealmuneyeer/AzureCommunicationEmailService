@@ -274,6 +274,7 @@
             // 
             txtBody.Location = new Point(5, 20);
             txtBody.Margin = new Padding(3, 2, 3, 2);
+            txtBody.MaxLength = 50000;
             txtBody.Multiline = true;
             txtBody.Name = "txtBody";
             txtBody.ScrollBars = ScrollBars.Vertical;
