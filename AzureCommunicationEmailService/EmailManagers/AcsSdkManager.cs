@@ -103,14 +103,19 @@ namespace AzureCommunicationEmailService.EmailManagers
             // Fill attacments
             payload.Attachments.ForEach((attachment) =>
             {
-                string filePath = attachment.Key;
+                string filePath = attachment.FilePath;
                 string attachmentName = Path.GetFileName(filePath);
-                string contentType = attachment.Value;
+                string contentType = attachment.MIMEType;
 
                 byte[] bytes = File.ReadAllBytes(filePath);
                 BinaryData attachmentBinaryData = new BinaryData(bytes);
 
                 EmailAttachment emailAttachment = new EmailAttachment(attachmentName, contentType, attachmentBinaryData);
+
+                if (attachment.IsInline)
+                {
+                    emailAttachment.ContentId = attachment.ContentId;
+                }
 
                 emailMessage.Attachments.Add(emailAttachment);
             });

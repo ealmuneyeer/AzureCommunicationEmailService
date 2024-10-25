@@ -35,8 +35,10 @@
             lblAttachmentsCount = new Label();
             dgAttachments = new DataGridView();
             attachFilePath = new DataGridViewTextBoxColumn();
-            attachType = new DataGridViewTextBoxColumn();
+            attachMimeType = new DataGridViewTextBoxColumn();
             attachSize = new DataGridViewTextBoxColumn();
+            attachCID = new DataGridViewTextBoxColumn();
+            attachInline = new DataGridViewCheckBoxColumn();
             btnAddAttachment = new Button();
             chkIsHtmlBody = new CheckBox();
             txtFrom = new TextBox();
@@ -164,7 +166,7 @@
             // 
             dgAttachments.AllowUserToAddRows = false;
             dgAttachments.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgAttachments.Columns.AddRange(new DataGridViewColumn[] { attachFilePath, attachType, attachSize });
+            dgAttachments.Columns.AddRange(new DataGridViewColumn[] { attachFilePath, attachMimeType, attachSize, attachCID, attachInline });
             dgAttachments.Location = new Point(5, 46);
             dgAttachments.Margin = new Padding(3, 2, 3, 2);
             dgAttachments.Name = "dgAttachments";
@@ -181,21 +183,32 @@
             attachFilePath.MinimumWidth = 6;
             attachFilePath.Name = "attachFilePath";
             attachFilePath.ReadOnly = true;
-            attachFilePath.Width = 475;
+            attachFilePath.Width = 320;
             // 
-            // attachType
+            // attachMimeType
             // 
-            attachType.HeaderText = "Type";
-            attachType.MinimumWidth = 6;
-            attachType.Name = "attachType";
-            attachType.Width = 95;
+            attachMimeType.HeaderText = "MIME type";
+            attachMimeType.MinimumWidth = 6;
+            attachMimeType.Name = "attachMimeType";
+            attachMimeType.Width = 117;
             // 
             // attachSize
             // 
             attachSize.HeaderText = "Size (Byte)";
             attachSize.MinimumWidth = 6;
             attachSize.Name = "attachSize";
-            attachSize.Width = 107;
+            attachSize.Width = 90;
+            // 
+            // attachCID
+            // 
+            attachCID.HeaderText = "Content Id";
+            attachCID.Name = "attachCID";
+            // 
+            // attachInline
+            // 
+            attachInline.HeaderText = "Inline";
+            attachInline.Name = "attachInline";
+            attachInline.Width = 50;
             // 
             // btnAddAttachment
             // 
@@ -274,7 +287,7 @@
             // 
             txtBody.Location = new Point(5, 20);
             txtBody.Margin = new Padding(3, 2, 3, 2);
-            txtBody.MaxLength = 50000;
+            txtBody.MaxLength = 10000000;
             txtBody.Multiline = true;
             txtBody.Name = "txtBody";
             txtBody.ScrollBars = ScrollBars.Vertical;
@@ -761,7 +774,7 @@
             Margin = new Padding(3, 2, 3, 2);
             Name = "frmMain";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Email Communication Services";
+            Text = "Email Communication Services Testing Tool";
             grpAttachments.ResumeLayout(false);
             grpAttachments.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgAttachments).EndInit();
@@ -832,9 +845,6 @@
         private DataGridViewTextBoxColumn recEmailAddress;
         private DataGridViewTextBoxColumn recDisplayName;
         private DataGridViewComboBoxColumn recType;
-        private DataGridViewTextBoxColumn attachFilePath;
-        private DataGridViewTextBoxColumn attachType;
-        private DataGridViewTextBoxColumn attachSize;
         private Panel panel2;
         private Label label14;
         private Label label15;
@@ -852,5 +862,10 @@
         private ComboBox cmbClientType;
         private Label label1;
         private Button btnStopSendingEmail;
+        private DataGridViewTextBoxColumn attachFilePath;
+        private DataGridViewTextBoxColumn attachMimeType;
+        private DataGridViewTextBoxColumn attachSize;
+        private DataGridViewTextBoxColumn attachCID;
+        private DataGridViewCheckBoxColumn attachInline;
     }
 }

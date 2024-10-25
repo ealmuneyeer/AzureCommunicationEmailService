@@ -81,15 +81,24 @@ namespace AzureCommunicationEmailService
             return (!string.IsNullOrEmpty(importance) ? Convert.ToInt32(importance) : null);
         }
 
-        private List<string> ParseAttachmentPaths(string attachmentPaths)
+        private List<CustomAttachment> ParseAttachmentPaths(string attachmentPaths)
         {
-            List<string> result = new List<string>();
+            List<CustomAttachment> result = new List<CustomAttachment>();
 
-            foreach (var path in attachmentPaths.Split(';'))
+            foreach (var attachement in attachmentPaths.Split(';'))
             {
-                if (!string.IsNullOrEmpty(path.Trim()))
+                if (!string.IsNullOrEmpty(attachement.Trim()))
                 {
-                    result.Add(path.Trim());
+                    var attachmentVal = attachement.Split(',').Select(i => i.Trim()).ToArray();
+
+                    if (attachmentVal.Length == 2)
+                    {
+                        result.Add(new CustomAttachment() { FilePath = attachmentVal[0].Trim(), ContentId = attachmentVal[1].Trim(), IsInline = true });
+                    }
+                    else
+                    {
+                        result.Add(new CustomAttachment() { FilePath = attachmentVal[0].Trim() });
+                    }
                 }
             }
 
@@ -134,7 +143,7 @@ namespace AzureCommunicationEmailService
             }
         }
 
-        public List<string> Attachments { get; private set; }
+        public List<CustomAttachment> Attachments { get; private set; }
 
         public int? Importance { get; private set; }
 

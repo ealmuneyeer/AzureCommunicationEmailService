@@ -84,10 +84,18 @@ namespace AzureCommunicationEmailService.EmailManagers
                         mailMessage.ReplyToList.Add(replyTo);
                     });
 
-                    // Fill attacments
+                    // Fill attacments 
                     payload.Attachments.ForEach((attachment) =>
                     {
-                        mailMessage.Attachments.Add(new Attachment(attachment.Key));
+                        Attachment tempAttachment = new Attachment(attachment.FilePath, attachment.MIMEType);
+
+                        if (attachment.IsInline)
+                        {
+                            tempAttachment.ContentId = attachment.ContentId;
+                            tempAttachment.ContentDisposition.Inline = attachment.IsInline;
+                        }
+
+                        mailMessage.Attachments.Add(tempAttachment);
                     });
 
                     //Set email importance

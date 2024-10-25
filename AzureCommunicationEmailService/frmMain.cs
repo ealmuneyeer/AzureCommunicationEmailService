@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using AzureCommunicationEmailService.EmailManagers;
 using AzureCommunicationEmailService.Models;
+using HeyRed.Mime;
 
 namespace AzureCommunicationEmailService
 {
@@ -28,8 +29,10 @@ namespace AzureCommunicationEmailService
         private class AttachmentColumnIndex
         {
             public const int FILE_PATH = 0;
-            public const int TYPE = 1;
+            public const int MIME_TYPE = 1;
             public const int FILES_SIZE = 2;
+            public const int CONTENT_ID = 3;
+            public const int IS_Inline = 4;
         }
 
         private class CustomHeaderColumnIndex
@@ -133,7 +136,7 @@ namespace AzureCommunicationEmailService
             for (int i = 0; i < dgAttachments.RowCount; i++)
             {
                 string filePath = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.FILE_PATH].Value.ToString();
-                object? fileType = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.TYPE].Value;
+                object? fileType = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.MIME_TYPE].Value;
 
                 if (!File.Exists(filePath))
                 {
@@ -209,23 +212,31 @@ namespace AzureCommunicationEmailService
 
         private void FillAttachment(string filePath)
         {
-            FileInfo fileInfo = new FileInfo(filePath);
+            FillAttachment(new CustomAttachment() { FilePath = filePath });
+        }
+
+        private void FillAttachment(CustomAttachment attachment)
+        {
+            FileInfo fileInfo = new FileInfo(attachment.FilePath);
             DataGridViewRow row = new DataGridViewRow();
 
             row.CreateCells(dgAttachments);
 
-            row.Cells[AttachmentColumnIndex.FILE_PATH].Value = filePath;
+            row.Cells[AttachmentColumnIndex.FILE_PATH].Value = attachment.FilePath;
             row.Cells[AttachmentColumnIndex.FILES_SIZE].Value = fileInfo.Length.ToString("N0");
-            row.Cells[AttachmentColumnIndex.TYPE].Value = fileInfo.Extension.TrimStart('.');
+            row.Cells[AttachmentColumnIndex.MIME_TYPE].Value = MimeTypesMap.GetMimeType(attachment.FilePath);
+            row.Cells[AttachmentColumnIndex.CONTENT_ID].Value = string.IsNullOrEmpty(attachment.ContentId) ? $"{Path.GetFileNameWithoutExtension(attachment.FilePath).Replace(" ", string.Empty)}-{DateTime.UtcNow.ToString("yyyyMMddHHmmssfff")}" : attachment.ContentId;
+            row.Cells[AttachmentColumnIndex.IS_Inline].Value = attachment.IsInline;
 
             dgAttachments.Rows.Add(row);
         }
 
-        private void FillAttachments(List<string> filesPath)
+
+        private void FillAttachments(List<CustomAttachment> attachments)
         {
-            foreach (string filePath in filesPath)
+            foreach (var attachment in attachments)
             {
-                FillAttachment(filePath);
+                FillAttachment(attachment);
             }
         }
 
@@ -466,20 +477,21 @@ namespace AzureCommunicationEmailService
                     {
                         string emailAddress = dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.EMAIL].Value?.ToString();
                         string displayName = dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.DISPLAY_NAME].Value?.ToString();
+                        string type = dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.TYPE].Value?.ToString() ?? "";
 
-                        if (dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.TYPE].Value.Equals(ReceipentType.CC))
+                        if (type.Equals(ReceipentType.CC))
                         {
                             emailPayload.CC.Add(new MailAddress(emailAddress, displayName));
                         }
-                        else if (dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.TYPE].Value.Equals(ReceipentType.BCC))
+                        else if (type.Equals(ReceipentType.BCC))
                         {
                             emailPayload.Bcc.Add(new MailAddress(emailAddress, displayName));
                         }
-                        else if (dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.TYPE].Value.Equals(ReceipentType.TO))
+                        else if (type.Equals(ReceipentType.TO))
                         {
                             emailPayload.To.Add(new MailAddress(emailAddress, displayName));
                         }
-                        else if (dgReceipeints.Rows[i].Cells[ReceipentEmailColumnIndex.TYPE].Value.Equals(ReceipentType.REPLY_TO))
+                        else if (type.Equals(ReceipentType.REPLY_TO))
                         {
                             emailPayload.ReplyTo.Add(new MailAddress(emailAddress, displayName));
                         }
@@ -492,9 +504,17 @@ namespace AzureCommunicationEmailService
                 for (int i = 0; i < dgAttachments.RowCount; i++)
                 {
                     string filePath = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.FILE_PATH].Value.ToString();
-                    string contentType = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.TYPE].Value.ToString();
+                    string contentType = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.MIME_TYPE].Value.ToString();
+                    string contentId = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.CONTENT_ID].Value.ToString();
+                    bool isInline = Convert.ToBoolean(((DataGridViewCheckBoxCell)dgAttachments.Rows[i].Cells[AttachmentColumnIndex.IS_Inline]).Value?.ToString());
 
-                    emailPayload.Attachments.Add(new KeyValuePair<string, string>(filePath, contentType));
+                    emailPayload.Attachments.Add(new CustomAttachment()
+                    {
+                        FilePath = filePath,
+                        MIMEType = contentType,
+                        ContentId = contentId,
+                        IsInline = isInline
+                    });
                 }
 
                 emailPayload.Priority = (short)(cmbImportance.SelectedIndex > 0 ? Convert.ToInt16(cmbImportance.Text) : 0);

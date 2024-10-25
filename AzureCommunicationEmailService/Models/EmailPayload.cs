@@ -26,7 +26,7 @@ namespace AzureCommunicationEmailService.Models
 
         public List<MailAddress> ReplyTo { get; set; } = new List<MailAddress>();
 
-        public List<KeyValuePair<string, string>> Attachments { get; set; } = new List<KeyValuePair<string, string>>();
+        public List<CustomAttachment> Attachments { get; set; } = new List<CustomAttachment>();
 
         public long AttachmentSize { get; set; }
 
@@ -35,7 +35,7 @@ namespace AzureCommunicationEmailService.Models
         public short Priority { get; set; }
 
         public List<KeyValuePair<string, string>> Headers { get; set; } = new List<KeyValuePair<string, string>>();
-        
+
         public int CountOfEmails { get; set; }
 
         public WaitUntil WaitUntil { get; set; }

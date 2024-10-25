@@ -90,10 +90,18 @@ namespace AzureCommunicationEmailService.EmailManagers
                     });
 
 
-                    // Fill attacments
+                    //Fill attachments
                     payload.Attachments.ForEach((attachment) =>
                     {
-                        bodyBuilder.Attachments.Add(attachment.Key);
+                        if (attachment.IsInline)
+                        {
+                            var inlineAttachment = bodyBuilder.LinkedResources.Add(attachment.FilePath);
+                            inlineAttachment.ContentId = attachment.ContentId;
+                        }
+                        else
+                        {
+                            bodyBuilder.Attachments.Add(attachment.FilePath);
+                        }
                     });
 
                     //Set email importance
