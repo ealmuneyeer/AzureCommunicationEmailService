@@ -53,6 +53,7 @@
             grpTrace = new GroupBox();
             txtTrace = new TextBox();
             grpBody = new GroupBox();
+            btnGetBase64String = new Button();
             grpReceipents = new GroupBox();
             label6 = new Label();
             cmbImportance = new ComboBox();
@@ -336,6 +337,7 @@
             // 
             // grpBody
             // 
+            grpBody.Controls.Add(btnGetBase64String);
             grpBody.Controls.Add(chkIsHtmlBody);
             grpBody.Controls.Add(txtBody);
             grpBody.Location = new Point(10, 263);
@@ -346,6 +348,16 @@
             grpBody.TabIndex = 2;
             grpBody.TabStop = false;
             grpBody.Text = "Body";
+            // 
+            // btnGetBase64String
+            // 
+            btnGetBase64String.Location = new Point(683, 44);
+            btnGetBase64String.Name = "btnGetBase64String";
+            btnGetBase64String.Size = new Size(69, 57);
+            btnGetBase64String.TabIndex = 12;
+            btnGetBase64String.Text = "Get Base64 string";
+            btnGetBase64String.UseVisualStyleBackColor = true;
+            btnGetBase64String.Click += btnGetBase64String_Click;
             // 
             // grpReceipents
             // 
@@ -867,5 +879,6 @@
         private DataGridViewTextBoxColumn attachSize;
         private DataGridViewTextBoxColumn attachCID;
         private DataGridViewCheckBoxColumn attachInline;
+        private Button btnGetBase64String;
     }
 }

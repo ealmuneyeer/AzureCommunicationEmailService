@@ -557,5 +557,23 @@ namespace AzureCommunicationEmailService
                 emailClientManager.StopSendingEmails();
             }
         }
+
+        private void btnGetBase64String_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.CheckFileExists = true;
+            fileDialog.Multiselect = false;
+            fileDialog.CheckPathExists = true;
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                byte[] imageBytes = File.ReadAllBytes(fileDialog.FileName);
+                string base64ImageRepresentation = Convert.ToBase64String(imageBytes);
+
+                Clipboard.SetText($"data:{MimeTypesMap.GetMimeType(fileDialog.FileName)};base64,{base64ImageRepresentation}");
+
+                MessageBox.Show("The Base64 string has been successfully copied to the clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
     }
 }
