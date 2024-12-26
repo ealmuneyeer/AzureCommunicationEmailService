@@ -15,9 +15,9 @@ namespace AzureCommunicationEmailService
     {
         public static Version ApplicationVersion { get; set; }
 
-        public static AADCredentials EnvironmentVarCredentials { get; internal set; } = new AADCredentials();
+        public static EntraIdCredentials EnvironmentVarCredentials { get; internal set; } = new EntraIdCredentials();
 
-        public static AADCredentials ClientCredentials { get; internal set; } = new AADCredentials();
+        public static EntraIdCredentials ClientCredentials { get; internal set; } = new EntraIdCredentials();
 
         public enum CredentialsSource
         {
@@ -59,14 +59,14 @@ namespace AzureCommunicationEmailService
             {
                 emailClient = new EmailClient(new Uri(clientConfiguration.AcsEndpoint), new AzureKeyCredential(clientConfiguration.AcsKey), emailClientOptions);
             }
-            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADDefaultCredentials)
+            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials)
             {
                 Uri endPoint = new Uri(clientConfiguration.AcsEndpoint);
                 emailClient = new EmailClient(endPoint, new DefaultAzureCredential(), emailClientOptions);
             }
-            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADClientSecrets)
+            else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets)
             {
-                ClientSecretCredential clientSecretCredential = new ClientSecretCredential(clientConfiguration.Credentials.TenantId, clientConfiguration.Credentials.ClientId, clientConfiguration.Credentials.ClientSecret);
+                ClientSecretCredential clientSecretCredential = new ClientSecretCredential(clientConfiguration.EntraIdCredentials.TenantId, clientConfiguration.EntraIdCredentials.ClientId, clientConfiguration.EntraIdCredentials.ClientSecret);
                 Uri endPoint = new Uri(clientConfiguration.AcsEndpoint);
                 emailClient = new EmailClient(endPoint, clientSecretCredential, emailClientOptions);
             }

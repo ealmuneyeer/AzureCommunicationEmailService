@@ -37,6 +37,8 @@ namespace AzureCommunicationEmailService.EmailManagers
         #region Abstract
         internal abstract string Name { get; }
 
+        internal abstract List<EmailClientConfiguration.AuthenticationType> SupportedAuthenticationTypes { get; }
+
         internal abstract bool InternalInitialize();
 
         internal abstract void InternalSendEmail(EmailPayload payload);
@@ -60,9 +62,9 @@ namespace AzureCommunicationEmailService.EmailManagers
 
             ClientConfiguration = clientConfiguration;
 
-            if (string.IsNullOrEmpty(clientConfiguration.AcsEndpoint))
+            if (!SupportedAuthenticationTypes.Contains(ClientConfiguration.AuthType))
             {
-                WriteTrace($"{Name} initialization failed. ACS endpoint cannot be empty.");
+                WriteTrace($"{Name} initialization failed. Unsupported authentication method");
                 IsInitialized = false;
             }
             else if (clientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.None)
@@ -72,7 +74,6 @@ namespace AzureCommunicationEmailService.EmailManagers
             }
             else
             {
-                LogAADAuthStatus();
                 IsInitialized = InternalInitialize();
             }
 
@@ -109,51 +110,29 @@ namespace AzureCommunicationEmailService.EmailManagers
         #endregion
 
         #region Internal functions
-        internal virtual void LogAADAuthStatus()
-        {
-            if (ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADDefaultCredentials)
-            {
-                string missingConfigErrorMsg = "Initialization will continue with wanring. Environment varilbale {0} is missing or empty!";
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.TenantId.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, EnvironmentVariable.AZURE_TENANT_ID));
-                }
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.ClientId.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, EnvironmentVariable.AZURE_CLIENT_ID));
-                }
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.ClientSecret.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, EnvironmentVariable.AZURE_CLIENT_SECRET));
-                }
-            }
-            else if (ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADClientSecrets)
-            {
-                string missingConfigErrorMsg = "Initialization will continue with wanring. {0} is empty!";
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.TenantId.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, "Tenant Id"));
-                }
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.ClientId.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, "AAD_ClientId"));
-                }
-
-                if (string.IsNullOrEmpty(ClientConfiguration.Credentials.ClientSecret.Trim()))
-                {
-                    WriteTrace(string.Format(missingConfigErrorMsg, "AAD_ClientSecret"));
-                }
-            }
-        }
 
         internal virtual string GetSmtpAuthUsername()
         {
-            return $"{Helpers.GetAcsResourceName(ClientConfiguration.AcsEndpoint)}|{ClientConfiguration.Credentials.ClientId}|{ClientConfiguration.Credentials.TenantId}";
+            if (ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.SmtpUsernamePassword)
+            {
+                return ClientConfiguration.SmtpUsernamePassword.Username;
+            }
+            else
+            {
+                return $"{Helpers.GetAcsResourceName(ClientConfiguration.AcsEndpoint)}|{ClientConfiguration.EntraIdCredentials.ClientId}|{ClientConfiguration.EntraIdCredentials.TenantId}";
+            }
+        }
+
+        internal virtual string GetSmtpAuthPassword()
+        {
+            if (ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.SmtpUsernamePassword)
+            {
+                return ClientConfiguration.SmtpUsernamePassword.Password;
+            }
+            else
+            {
+                return ClientConfiguration.EntraIdCredentials.ClientSecret;
+            }
         }
 
         internal virtual string GetEmailManagerSignatureAsHtml()

@@ -12,6 +12,8 @@ namespace AzureCommunicationEmailService.EmailManagers
         #region Variables
         internal override string Name { get { return "SDK client"; } }
 
+        internal override List<EmailClientConfiguration.AuthenticationType> SupportedAuthenticationTypes { get; } = new List<EmailClientConfiguration.AuthenticationType>() { EmailClientConfiguration.AuthenticationType.AcsKey, EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials, EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets, EmailClientConfiguration.AuthenticationType.Interactive };
+
         internal override bool StopSendingEmailsReceived
         {
             get

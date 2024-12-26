@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureCommunicationEmailService", "AzureCommunicationEmailService\AzureCommunicationEmailService.csproj", "{7C6DA592-C8BF-4D29-925C-484A6316F369}"
+	ProjectSection(ProjectDependencies) = postProject
+		{58CADFB7-6104-45B6-B523-75B6BE7333CA} = {58CADFB7-6104-45B6-B523-75B6BE7333CA}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusReceiver", "ServiceBusReceiver\ServiceBusReceiver.csproj", "{58CADFB7-6104-45B6-B523-75B6BE7333CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{7C6DA592-C8BF-4D29-925C-484A6316F369}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C6DA592-C8BF-4D29-925C-484A6316F369}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C6DA592-C8BF-4D29-925C-484A6316F369}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58CADFB7-6104-45B6-B523-75B6BE7333CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58CADFB7-6104-45B6-B523-75B6BE7333CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58CADFB7-6104-45B6-B523-75B6BE7333CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58CADFB7-6104-45B6-B523-75B6BE7333CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

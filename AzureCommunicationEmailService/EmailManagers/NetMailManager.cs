@@ -11,7 +11,10 @@ namespace AzureCommunicationEmailService.EmailManagers
         #region Variables
         internal override string Name { get { return "NetMail client"; } }
 
+        internal override List<EmailClientConfiguration.AuthenticationType> SupportedAuthenticationTypes { get; } = new List<EmailClientConfiguration.AuthenticationType>() { EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials, EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets, EmailClientConfiguration.AuthenticationType.SmtpUsernamePassword };
+
         private string _smtpAuthUsername = "";
+        private string _smtpAuthPassword = "";
         #endregion
 
         #region Internal functions
@@ -29,17 +32,8 @@ namespace AzureCommunicationEmailService.EmailManagers
                 return false;
             }
 
-            if (ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADDefaultCredentials || ClientConfiguration.AuthType == EmailClientConfiguration.AuthenticationType.AADClientSecrets)
-            {
-                LogAADAuthStatus();
-            }
-            else
-            {
-                WriteTrace($"{Name} initialization failed. Unsupported authentication method");
-                return false;
-            }
-
             _smtpAuthUsername = GetSmtpAuthUsername();
+            _smtpAuthPassword = GetSmtpAuthPassword();
 
             LogInitializationResult(true, null, null, _smtpAuthUsername);
 
@@ -52,7 +46,7 @@ namespace AzureCommunicationEmailService.EmailManagers
             {
                 smtpClient.Host = ClientConfiguration.SmtpEndpoint;
                 smtpClient.Port = ClientConfiguration.SmtpPort;
-                smtpClient.Credentials = new NetworkCredential(_smtpAuthUsername, ClientConfiguration.Credentials.ClientSecret);
+                smtpClient.Credentials = new NetworkCredential(_smtpAuthUsername, _smtpAuthPassword);
                 smtpClient.EnableSsl = true;
 
                 using (MailMessage mailMessage = new MailMessage())

@@ -159,14 +159,14 @@ namespace AzureCommunicationEmailService
             get { return _config[AppConfigKeys.TENANT_ID]; }
         }
 
-        public string AAD_ClientId
+        public string ENTRA_ID_ClientId
         {
-            get { return _config[AppConfigKeys.AAD_CLIENT_ID]; }
+            get { return _config[AppConfigKeys.ENTRA_ID_CLIENT_ID]; }
         }
 
-        public string AAD_ClientSecret
+        public string ENTRA_ID_ClientSecret
         {
-            get { return _config[AppConfigKeys.AAD_CLIENT_SECRET]; }
+            get { return _config[AppConfigKeys.ENTRA_ID_CLIENT_SECRET]; }
         }
 
         public string SmtpEndpoint
@@ -185,5 +185,25 @@ namespace AzureCommunicationEmailService
         }
 
         public int SmtpPort { get; private set; }
+
+        public string SmtpUsername
+        {
+            get { return _config[AppConfigKeys.SMTP_USERNAME]; }
+        }
+
+        public string SmtpPassword
+        {
+            get { return _config[AppConfigKeys.SMTP_PASSWORD]; }
+        }
+
+        public string ServiceBusConnectionString
+        {
+            get { return _config[AppConfigKeys.SERVICE_BUS_CONNECTION_STRING]; }
+        }
+
+        public string ServiceBusQueueName
+        {
+            get { return _config[AppConfigKeys.SERVICE_BUS_QUEUE_NAME]; }
+        }
     }
 }

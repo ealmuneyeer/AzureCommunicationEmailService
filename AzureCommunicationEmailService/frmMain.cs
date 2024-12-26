@@ -4,6 +4,7 @@ using System.Net.Mail;
 using AzureCommunicationEmailService.EmailManagers;
 using AzureCommunicationEmailService.Models;
 using HeyRed.Mime;
+using ServiceBusReceiver;
 
 namespace AzureCommunicationEmailService
 {
@@ -44,9 +45,10 @@ namespace AzureCommunicationEmailService
         private class DropAuthTypeIndex
         {
             public const int ACS_KEY = 0;
-            public const int AAD_DEFAULT = 1;
-            public const int AAD_CLIENT = 2;
+            public const int ENTRA_ID_DEFAULT = 1;
+            public const int ENTRA_ID_CLIENT = 2;
             public const int INTERACTIVE = 3;
+            public const int SMTP_BASIC_AUTH = 4;
         }
 
 
@@ -55,6 +57,8 @@ namespace AzureCommunicationEmailService
 
         public delegate void WriteTraceDelegate(string message);
         public delegate void WriteExceptionDelegate(Exception ex);
+
+        private ServiceBusReceiverManager _serviceBusReceiverManager = null;
 
         public frmMain()
         {
@@ -78,6 +82,10 @@ namespace AzureCommunicationEmailService
             txtSubject.Text = configWrapper.Subject;
             chkIsHtmlBody.Checked = configWrapper.UseHtmlBody;
             txtBody.Text = configWrapper.UseHtmlBody ? configWrapper.HtmlBody : configWrapper.Body;
+            txtSmtpUsername.Text = configWrapper.SmtpUsername;
+            txtSmtpPassword.Text = configWrapper.SmtpPassword;
+            txtServiceBusConnectionString.Text = configWrapper.ServiceBusConnectionString;
+            txtServiceBusQueueName.Text = configWrapper.ServiceBusQueueName;
             FillReceipents(configWrapper.To, ReceipentType.TO);
             FillReceipents(configWrapper.CC, ReceipentType.CC);
             FillReceipents(configWrapper.BCC, ReceipentType.BCC);
@@ -94,10 +102,27 @@ namespace AzureCommunicationEmailService
 
             FillAuthenticationType(configWrapper.AuthenticationType);
 
-            FillCustomCredentials(configWrapper.TenantId, configWrapper.AAD_ClientId, configWrapper.AAD_ClientSecret);
+            FillCustomCredentials(configWrapper.TenantId, configWrapper.ENTRA_ID_ClientId, configWrapper.ENTRA_ID_ClientSecret);
 
             cmbSendWaitUntil.SelectedIndex = 0;
 
+            InitializeEmailClientList();
+
+            cmbClientType.SelectedIndex = 0;
+
+            DisableEnableEmailOperationsTab(false);
+
+            WriteTrace($"Application verson: {Helpers.GetFormattedApplicationVersion()}");
+        }
+
+        private void DisableEnableEmailOperationsTab(bool enable)
+        {
+            tabControl1.TabPages[1].Enabled = enable;
+            grpMessageDeliveryStatus.Enabled = enable;
+        }
+
+        private void InitializeEmailClientList()
+        {
             _emailClientList = new List<EmailClientManagerBase>
             {
                 new AcsSdkManager(),
@@ -105,14 +130,14 @@ namespace AzureCommunicationEmailService
                 new NetMailManager()
             };
 
+            cmbClientType.Items.Clear();
+
             _emailClientList.ForEach((manager) =>
             {
                 cmbClientType.Items.Add(manager.Name);
             });
 
             cmbClientType.SelectedIndex = 0;
-
-            WriteTrace($"Application verson: {Helpers.GetFormattedApplicationVersion()}");
         }
 
         private void FillReceipents(List<MailAddress> emails, string type)
@@ -127,36 +152,6 @@ namespace AzureCommunicationEmailService
                 row.Cells[ReceipentEmailColumnIndex.TYPE].Value = type;
                 dgReceipeints.Rows.Add(row);
             }
-        }
-
-        private bool areAttachmentsValid()
-        {
-            string errorMessage;
-
-            for (int i = 0; i < dgAttachments.RowCount; i++)
-            {
-                string filePath = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.FILE_PATH].Value.ToString();
-                object? fileType = dgAttachments.Rows[i].Cells[AttachmentColumnIndex.MIME_TYPE].Value;
-
-                if (!File.Exists(filePath))
-                {
-                    errorMessage = $"Attachment file '{filePath}' does not exists!";
-                    WriteTrace(errorMessage);
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    dgAttachments.Focus();
-                    return false;
-                }
-                else if (fileType == null)
-                {
-                    errorMessage = $"Attachment file '{filePath}' type cannot be empty!";
-                    WriteTrace(errorMessage);
-                    MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    dgAttachments.Focus();
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private void WriteTrace(string message)
@@ -262,15 +257,19 @@ namespace AzureCommunicationEmailService
             }
             else if (authType.Equals(AuthenticationType.AAD_DEFAULT_CREDENTIALS, StringComparison.InvariantCultureIgnoreCase))
             {
-                cmbAuthType.SelectedIndex = DropAuthTypeIndex.AAD_DEFAULT;
+                cmbAuthType.SelectedIndex = DropAuthTypeIndex.ENTRA_ID_DEFAULT;
             }
             else if (authType.Equals(AuthenticationType.AAD_CLIENT_SECRESTS, StringComparison.InvariantCultureIgnoreCase))
             {
-                cmbAuthType.SelectedIndex = DropAuthTypeIndex.AAD_CLIENT;
+                cmbAuthType.SelectedIndex = DropAuthTypeIndex.ENTRA_ID_CLIENT;
             }
             else if (authType.Equals(AuthenticationType.INTERACTIVE, StringComparison.InvariantCultureIgnoreCase))
             {
                 cmbAuthType.SelectedIndex = DropAuthTypeIndex.INTERACTIVE;
+            }
+            else if (authType.Equals(AuthenticationType.SMTP_USERNAME_PASSWORD, StringComparison.InvariantCultureIgnoreCase))
+            {
+                cmbAuthType.SelectedIndex = DropAuthTypeIndex.SMTP_BASIC_AUTH;
             }
             else
             {
@@ -348,9 +347,7 @@ namespace AzureCommunicationEmailService
 
         private void btnGetMsgDeliveryStatus_Click(object sender, EventArgs e)
         {
-            InitializeEmailClientManagers();
-
-            if (_msgDeliveryStatusManager.IsInitialized == false)
+            if (_msgDeliveryStatusManager == null || _msgDeliveryStatusManager.IsInitialized == false)
             {
                 WriteTrace("Getting message delivery status failed. Message delivery status manager initialization failed");
                 return;
@@ -358,53 +355,102 @@ namespace AzureCommunicationEmailService
             _msgDeliveryStatusManager.CheckDeliveryStatus(txtMessageID.Text.Trim());
         }
 
-        private void btnAADConfig_Click(object sender, EventArgs e)
-        {
-            AADCredentials credentials;
-            Helpers.CredentialsSource source;
-
-            if (cmbAuthType.SelectedIndex == DropAuthTypeIndex.AAD_DEFAULT)
-            {
-                credentials = Helpers.EnvironmentVarCredentials;
-                source = Helpers.CredentialsSource.EnvironmentVariables;
-            }
-            else
-            {
-                credentials = Helpers.ClientCredentials;
-                source = Helpers.CredentialsSource.AppSettings;
-            }
-
-            frmAADAuthentication frmAADAuthentication = new frmAADAuthentication(source, credentials);
-            frmAADAuthentication.ShowDialog();
-        }
-
         private void cmbAuthType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnAADConfig.Enabled = pnlSmtpConfig.Enabled = cmbAuthType.SelectedIndex == DropAuthTypeIndex.AAD_DEFAULT || cmbAuthType.SelectedIndex == DropAuthTypeIndex.AAD_CLIENT;
+            switch (cmbAuthType.SelectedIndex)
+            {
+                case DropAuthTypeIndex.ACS_KEY:
+                    pnlAcsEndpoint.Enabled = true;
+                    pnlAcsKey.Enabled = true;
+                    pnlSdkConfig.Enabled = true;
+                    pnlEntraID.Enabled = false;
+                    pnlSmtpConfig.Enabled = false;
+                    pnlSmtpUsernamePassword.Enabled = false;
+                    break;
+
+                case DropAuthTypeIndex.ENTRA_ID_CLIENT:
+                    pnlAcsEndpoint.Enabled = true;
+                    pnlAcsKey.Enabled = false;
+                    pnlSdkConfig.Enabled = true;
+                    pnlEntraID.Enabled = true;
+                    pnlSmtpConfig.Enabled = true;
+                    pnlSmtpUsernamePassword.Enabled = false;
+                    txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = false;
+
+                    txtEntraIdClientID.Text = Helpers.ClientCredentials.ClientId;
+                    txtEntraIdClientSecret.Text = Helpers.ClientCredentials.ClientSecret;
+                    txtEntraIdTenantID.Text = Helpers.ClientCredentials.TenantId;
+                    break;
+
+                case DropAuthTypeIndex.ENTRA_ID_DEFAULT:
+                    pnlAcsEndpoint.Enabled = true;
+                    pnlAcsKey.Enabled = false;
+                    pnlSdkConfig.Enabled = true;
+                    pnlEntraID.Enabled = true;
+                    pnlSmtpConfig.Enabled = true;
+                    pnlSmtpUsernamePassword.Enabled = false;
+                    txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = true;
+
+                    txtEntraIdClientID.Text = Helpers.EnvironmentVarCredentials.ClientId;
+                    txtEntraIdClientSecret.Text = Helpers.EnvironmentVarCredentials.ClientSecret;
+                    txtEntraIdTenantID.Text = Helpers.EnvironmentVarCredentials.TenantId;
+                    break;
+
+                case DropAuthTypeIndex.INTERACTIVE:
+                    pnlAcsEndpoint.Enabled = true;
+                    pnlAcsKey.Enabled = false;
+                    pnlSdkConfig.Enabled = true;
+                    pnlEntraID.Enabled = false;
+                    pnlSmtpConfig.Enabled = false;
+                    pnlSmtpUsernamePassword.Enabled = false;
+                    break;
+
+                case DropAuthTypeIndex.SMTP_BASIC_AUTH:
+                    pnlAcsEndpoint.Enabled = false;
+                    pnlAcsKey.Enabled = false;
+                    pnlSdkConfig.Enabled = false;
+                    pnlEntraID.Enabled = false;
+                    pnlSmtpConfig.Enabled = true;
+                    pnlSmtpUsernamePassword.Enabled = true;
+                    break;
+            }
         }
 
-        private void btnShowAcsKey_Click(object sender, EventArgs e)
+        private void HideShowPassword(Button button, TextBox passwordTextBox)
         {
-            Button button = (Button)sender;
-
             if (button.Text == "Show")
             {
                 button.Text = "Hide";
-                txtAccessKey.UseSystemPasswordChar = false;
+                passwordTextBox.UseSystemPasswordChar = false;
             }
             else
             {
                 button.Text = "Show";
-                txtAccessKey.UseSystemPasswordChar = true;
+                passwordTextBox.UseSystemPasswordChar = true;
             }
+        }
+
+        private void btnShowAcsKey_Click(object sender, EventArgs e)
+        {
+            HideShowPassword((Button)sender, txtAccessKey);
+        }
+
+        private void btnShowEntraIdSecret_Click(object sender, EventArgs e)
+        {
+            HideShowPassword((Button)sender, txtEntraIdClientSecret);
+        }
+
+        private void btnShowSmtpPassword_Click(object sender, EventArgs e)
+        {
+            HideShowPassword((Button)sender, txtSmtpPassword);
         }
 
         private void InitializeEmailClientManagers()
         {
-            if (_msgDeliveryStatusManager != null)
-            {
-                return;
-            }
+            //if (_msgDeliveryStatusManager != null)
+            //{
+            //    return;
+            //}
 
             WriteTrace("Initializing...");
 
@@ -416,16 +462,21 @@ namespace AzureCommunicationEmailService
                     authenticationType = EmailClientConfiguration.AuthenticationType.AcsKey;
                     break;
 
-                case DropAuthTypeIndex.AAD_DEFAULT:
-                    authenticationType = EmailClientConfiguration.AuthenticationType.AADDefaultCredentials;
+                case DropAuthTypeIndex.ENTRA_ID_DEFAULT:
+                    authenticationType = EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials;
                     break;
 
-                case DropAuthTypeIndex.AAD_CLIENT:
-                    authenticationType = EmailClientConfiguration.AuthenticationType.AADClientSecrets;
+                case DropAuthTypeIndex.ENTRA_ID_CLIENT:
+                    authenticationType = EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets;
+                    Helpers.UpdateClientCredentials(txtEntraIdTenantID.Text.Trim(), txtEntraIdClientID.Text.Trim(), txtEntraIdClientSecret.Text.Trim());
                     break;
 
                 case DropAuthTypeIndex.INTERACTIVE:
                     authenticationType = EmailClientConfiguration.AuthenticationType.Interactive;
+                    break;
+
+                case DropAuthTypeIndex.SMTP_BASIC_AUTH:
+                    authenticationType = EmailClientConfiguration.AuthenticationType.SmtpUsernamePassword;
                     break;
 
                 default:
@@ -440,21 +491,22 @@ namespace AzureCommunicationEmailService
             string smtpEndpoint = txtSmtpEndpoint.Text.Trim();
             Int32.TryParse(txtSmtpPort.Text.Trim(), out smtpPort);
             bool autoRetry = chk429AutoRetry.Checked;
-            AADCredentials credentials = cmbAuthType.SelectedIndex == DropAuthTypeIndex.AAD_CLIENT ? Helpers.ClientCredentials : (cmbAuthType.SelectedIndex == DropAuthTypeIndex.AAD_DEFAULT ? Helpers.EnvironmentVarCredentials : null);
+            EntraIdCredentials entraIdCredentials = authenticationType == EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets ? Helpers.ClientCredentials : (authenticationType == EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials ? Helpers.EnvironmentVarCredentials : null);
+            SmtpUsernamePassword smtpUsernamePassword = new SmtpUsernamePassword() { Username = txtSmtpUsername.Text.Trim(), Password = txtSmtpPassword.Text.Trim() };
 
-            EmailClientConfiguration emailClientConfiguration = new EmailClientConfiguration(authenticationType, acsEndpoint, acsKey, smtpEndpoint, smtpPort, autoRetry, credentials);
+            EmailClientConfiguration emailClientConfiguration = new EmailClientConfiguration(authenticationType, acsEndpoint, acsKey, smtpEndpoint, smtpPort, autoRetry, entraIdCredentials, smtpUsernamePassword);
 
             _msgDeliveryStatusManager = new MessageDeliveryStatusManager();
             _msgDeliveryStatusManager.Initialize(emailClientConfiguration, WriteTrace, WriteException);
-
-            btnGetMsgDeliveryStatus.Enabled = _msgDeliveryStatusManager.IsInitialized;
 
             _emailClientList.ForEach((manager) =>
             {
                 manager.Initialize(emailClientConfiguration, _msgDeliveryStatusManager, WriteTrace, WriteException);
             });
 
-            pnlInitialize.Enabled = false;
+            pnlInitializeEmailClients.Enabled = btnInitializeEmailClients.Enabled = false;
+
+            DisableEnableEmailOperationsTab(true);
         }
 
         private void SendEmail()
@@ -538,8 +590,6 @@ namespace AzureCommunicationEmailService
 
         private void btnSendEmail_Click(object sender, EventArgs e)
         {
-            InitializeEmailClientManagers();
-
             SendEmail();
         }
 
@@ -575,5 +625,76 @@ namespace AzureCommunicationEmailService
                 MessageBox.Show("The Base64 string has been successfully copied to the clipboard!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
+        private void btnInitialize_Click(object sender, EventArgs e)
+        {
+            InitializeEmailClientManagers();
+        }
+
+        private void btnReinitialize_Click(object sender, EventArgs e)
+        {
+            WriteTrace("Reset email clients...");
+
+            if (_msgDeliveryStatusManager != null)
+            {
+                _msgDeliveryStatusManager.Dispose();
+                _msgDeliveryStatusManager = null;
+            }
+
+            _emailClientList.Clear();
+
+            InitializeEmailClientList();
+
+            pnlInitializeEmailClients.Enabled = btnInitializeEmailClients.Enabled = true;
+
+            DisableEnableEmailOperationsTab(false);
+
+            WriteTrace("Reset email clients succeeded");
+        }
+
+        private void btnShowServiceBusConnString_Click(object sender, EventArgs e)
+        {
+            HideShowPassword((Button)sender, txtServiceBusConnectionString);
+        }
+
+        private void btnServiceBusStartMonitoring_Click(object sender, EventArgs e)
+        {
+            WriteTrace("Start monitoring email events...");
+            if (_serviceBusReceiverManager == null)
+            {
+                _serviceBusReceiverManager = new ServiceBusReceiverManager(txtServiceBusConnectionString.Text, txtServiceBusQueueName.Text);
+            }
+
+            _serviceBusReceiverManager.ServiceBusEvent += ServiceBusEventHandler;
+            _serviceBusReceiverManager.Start();
+
+            pnlServiceBusConfig.Enabled = btnServiceBusStartMonitoring.Enabled = false;
+            btnServiceBusStopMonitoring.Enabled = true;
+
+            WriteTrace("Monitoring email events started");
+        }
+
+        private void btnServiceBusStopMonitoring_Click(object sender, EventArgs e)
+        {
+            WriteTrace("Stop monitoring email events...");
+            if (_serviceBusReceiverManager != null)
+            {
+                _serviceBusReceiverManager.ServiceBusEvent -= ServiceBusEventHandler;
+                _serviceBusReceiverManager.Stop();
+                _serviceBusReceiverManager = null;
+
+                pnlServiceBusConfig.Enabled = btnServiceBusStartMonitoring.Enabled = true;
+                btnServiceBusStopMonitoring.Enabled = false;
+            }
+
+            WriteTrace("Monitoring email events stopped");
+        }
+
+        private void ServiceBusEventHandler(object? sender, ServiceBusEventArgs e)
+        {
+            WriteTrace($"<-- Event received: {Environment.NewLine}===================={Environment.NewLine}{e.Body}{Environment.NewLine}====================");
+        }
+
+
     }
 }

@@ -29,11 +29,16 @@ namespace AzureCommunicationEmailService
 
         public const string AUTHENTICATION_TYPE = "AuthenticationType";
         public const string TENANT_ID = "TenantId";
-        public const string AAD_CLIENT_ID = "AAD_ClientId";
-        public const string AAD_CLIENT_SECRET = "AAD_ClientSecret";
+        public const string ENTRA_ID_CLIENT_ID = "EntraId_ClientId";
+        public const string ENTRA_ID_CLIENT_SECRET = "EntraId_ClientSecret";
 
         public const string SMTP_ENDPOINT = "SmtpEndpoint";
         public const string SMTP_PORT = "SmtpPort";
+        public const string SMTP_USERNAME = "SmtpUsername";
+        public const string SMTP_PASSWORD = "SmtpPassword";
+
+        public const string SERVICE_BUS_CONNECTION_STRING = "ServiceBusConnectionString";
+        public const string SERVICE_BUS_QUEUE_NAME = "ServiceBusQueueName";
     }
 
     public class EnvironmentVariable
@@ -46,8 +51,9 @@ namespace AzureCommunicationEmailService
     public class AuthenticationType
     {
         public const string ACS_KEY = "AcsKey";
-        public const string AAD_DEFAULT_CREDENTIALS = "AadDefaultCredentials";
-        public const string AAD_CLIENT_SECRESTS = "AADClientSecret";
+        public const string AAD_DEFAULT_CREDENTIALS = "EntraIdDefaultCredentials";
+        public const string AAD_CLIENT_SECRESTS = "EntraIdClientSecret";
         public const string INTERACTIVE = "Interactive";
+        public const string SMTP_USERNAME_PASSWORD = "SmtpUsernamePassword";
     }
 }

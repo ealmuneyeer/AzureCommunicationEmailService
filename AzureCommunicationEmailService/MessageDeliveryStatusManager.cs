@@ -15,7 +15,7 @@ using static AzureCommunicationEmailService.frmMain;
 
 namespace AzureCommunicationEmailService
 {
-    internal class MessageDeliveryStatusManager
+    internal class MessageDeliveryStatusManager : IDisposable
     {
         #region Variables
         private const int TIMER_INTERVAL = 1000;
@@ -29,6 +29,7 @@ namespace AzureCommunicationEmailService
 
         WriteTraceDelegate WriteTrace;
         WriteExceptionDelegate WriteException;
+        private bool disposedValue;
         #endregion
 
         public bool Initialize(EmailClientConfiguration clientConfiguration, WriteTraceDelegate writeTraceDelegate, WriteExceptionDelegate writeExceptionDelegate)
@@ -52,16 +53,24 @@ namespace AzureCommunicationEmailService
 
             _emailClient = Helpers.GetEmailClient(clientConfiguration);
 
-            WriteTrace($"Message delivery status manager initialization succeeded");
+            if (_emailClient != null)
+            {
+                WriteTrace($"Message delivery status manager initialization succeeded");
 
-            IsInitialized = true;
+                IsInitialized = true;
 
-            _checkMessageStatusTimer = new System.Timers.Timer(TIMER_INTERVAL);
-            _checkMessageStatusTimer.AutoReset = false;
-            _checkMessageStatusTimer.Elapsed += CheckMessageStatusTimer_Elapsed;
-            _checkMessageStatusTimer.Start();
+                _checkMessageStatusTimer = new System.Timers.Timer(TIMER_INTERVAL);
+                _checkMessageStatusTimer.AutoReset = false;
+                _checkMessageStatusTimer.Elapsed += CheckMessageStatusTimer_Elapsed;
+                _checkMessageStatusTimer.Start();
 
-            WriteTrace = writeTraceDelegate;
+                WriteTrace = writeTraceDelegate;
+            }
+            else
+            {
+                WriteTrace($"Failed to initialize message delivery status manager");
+                IsInitialized = false;
+            }
 
             return IsInitialized;
         }
@@ -164,6 +173,37 @@ namespace AzureCommunicationEmailService
         public bool Monitor(EmailSendOperation emailSendOperation)
         {
             return _messages.TryAdd(emailSendOperation, DateTime.Now);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing && _checkMessageStatusTimer != null)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    _checkMessageStatusTimer.Elapsed -= CheckMessageStatusTimer_Elapsed;
+                    _checkMessageStatusTimer.Stop();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~MessageDeliveryStatusManager()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

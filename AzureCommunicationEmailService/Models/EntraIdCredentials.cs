@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AzureCommunicationEmailService.Models
 {
-    public class AADCredentials
+    public class EntraIdCredentials
     {
         public string TenantId { get; internal set; }
 
