@@ -1,4 +1,4 @@
-# Azure Communication Services Email Tesrting Tool
+# Azure Communication Services Email Testing Tool
  This is an unofficial tool for testing the [Azure Communication Services Email Service](https://learn.microsoft.com/en-us/azure/communication-services/concepts/email/prepare-email-communication-resource). There are no guarantees it is free of bugs
 
 ## Description: -
