@@ -100,9 +100,11 @@ namespace AzureCommunicationEmailService
 
             FillCustomHeaders(configWrapper.CustomHeaders);
 
-            FillAuthenticationType(configWrapper.AuthenticationType);
-
             FillCustomCredentials(configWrapper.TenantId, configWrapper.ENTRA_ID_ClientId, configWrapper.ENTRA_ID_ClientSecret);
+
+            FillEntraIdInformation(configWrapper.TenantId, configWrapper.ENTRA_ID_ClientId, configWrapper.ENTRA_ID_ClientSecret);
+
+            FillAuthenticationType(configWrapper.AuthenticationType);
 
             cmbSendWaitUntil.SelectedIndex = 0;
 
@@ -355,6 +357,13 @@ namespace AzureCommunicationEmailService
             _msgDeliveryStatusManager.CheckDeliveryStatus(txtMessageID.Text.Trim());
         }
 
+        private void FillEntraIdInformation(string clientId, string clientSecret, string tenantId)
+        {
+            txtEntraIdClientID.Text = clientId;
+            txtEntraIdClientSecret.Text = clientSecret;
+            txtEntraIdTenantID.Text = tenantId;
+        }
+
         private void cmbAuthType_SelectedIndexChanged(object sender, EventArgs e)
         {
             switch (cmbAuthType.SelectedIndex)
@@ -377,9 +386,7 @@ namespace AzureCommunicationEmailService
                     pnlSmtpUsernamePassword.Enabled = false;
                     txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = false;
 
-                    txtEntraIdClientID.Text = Helpers.ClientCredentials.ClientId;
-                    txtEntraIdClientSecret.Text = Helpers.ClientCredentials.ClientSecret;
-                    txtEntraIdTenantID.Text = Helpers.ClientCredentials.TenantId;
+                    FillEntraIdInformation(Helpers.ClientCredentials.ClientId, Helpers.ClientCredentials.ClientSecret, Helpers.ClientCredentials.TenantId);
                     break;
 
                 case DropAuthTypeIndex.ENTRA_ID_DEFAULT:
@@ -391,9 +398,7 @@ namespace AzureCommunicationEmailService
                     pnlSmtpUsernamePassword.Enabled = false;
                     txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = true;
 
-                    txtEntraIdClientID.Text = Helpers.EnvironmentVarCredentials.ClientId;
-                    txtEntraIdClientSecret.Text = Helpers.EnvironmentVarCredentials.ClientSecret;
-                    txtEntraIdTenantID.Text = Helpers.EnvironmentVarCredentials.TenantId;
+                    FillEntraIdInformation(Helpers.EnvironmentVarCredentials.ClientId, Helpers.EnvironmentVarCredentials.ClientSecret, Helpers.EnvironmentVarCredentials.TenantId);
                     break;
 
                 case DropAuthTypeIndex.INTERACTIVE:

@@ -162,17 +162,31 @@ namespace AzureCommunicationEmailService
                                 $"================================================== {Environment.NewLine}" +
                                 $"{ex.Message}" +
                                 $"{Environment.NewLine}==================================================");
-            };
+            }
         }
 
         public bool Monitor(string messageID)
         {
-            return _messages.TryAdd(new EmailSendOperation(messageID.ToString(), _emailClient), DateTime.Now);
+            if (IsInitialized == true)
+            {
+                return _messages.TryAdd(new EmailSendOperation(messageID.ToString(), _emailClient), DateTime.Now);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool Monitor(EmailSendOperation emailSendOperation)
         {
-            return _messages.TryAdd(emailSendOperation, DateTime.Now);
+            if (IsInitialized == true)
+            {
+                return _messages.TryAdd(emailSendOperation, DateTime.Now);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         protected virtual void Dispose(bool disposing)
