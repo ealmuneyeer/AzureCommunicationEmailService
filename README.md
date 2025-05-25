@@ -36,7 +36,7 @@ After downloading the project and before building it with Visual Studio, prepare
 + You can remove rows from <i>Receipents</i>, <i>Custom Headers</i>, and <i>Attachments</i> by selecting the first column (Clicking on it with your mouse), then pressing <i>Delete</i> in your keyboard
 ![image](https://user-images.githubusercontent.com/36260446/230054474-9f774804-cbe6-4b6f-a59d-97a964ee3267.png)
 
-## Braking changes: -
+## Breaking changes: -
 <ul>
   <li><b>Version 4.0 - Dec 2024:</b></li>
  <ul>
