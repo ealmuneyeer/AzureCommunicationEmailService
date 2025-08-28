@@ -66,38 +66,6 @@
             txtMessageID = new TextBox();
             label7 = new Label();
             label8 = new Label();
-            chk429AutoRetry = new CheckBox();
-            grpACS = new GroupBox();
-            pnlSdkConfig = new Panel();
-            label12 = new Label();
-            pnlAcsKey = new Panel();
-            txtAccessKey = new TextBox();
-            btnShowAcsKey = new Button();
-            label15 = new Label();
-            pnlAcsEndpoint = new Panel();
-            label14 = new Label();
-            txtAcsEndpoint = new TextBox();
-            grpSMTP = new GroupBox();
-            pnlSmtpConfig = new Panel();
-            txtSmtpEndpoint = new TextBox();
-            txtSmtpPort = new TextBox();
-            label16 = new Label();
-            label17 = new Label();
-            pnlSmtpUsernamePassword = new Panel();
-            btnShowSmtpPassword = new Button();
-            label13 = new Label();
-            label18 = new Label();
-            txtSmtpUsername = new TextBox();
-            txtSmtpPassword = new TextBox();
-            grpEntraID = new GroupBox();
-            pnlEntraID = new Panel();
-            btnShowEntraIdSecret = new Button();
-            txtEntraIdClientSecret = new TextBox();
-            txtEntraIdClientID = new TextBox();
-            txtEntraIdTenantID = new TextBox();
-            label23 = new Label();
-            label22 = new Label();
-            label21 = new Label();
             label11 = new Label();
             cmbAuthType = new ComboBox();
             cmbClientType = new ComboBox();
@@ -123,6 +91,10 @@
             label26 = new Label();
             grpInitializeEmailClients = new GroupBox();
             pnlInitializeEmailClients = new Panel();
+            dgEmailClientConfig = new DataGridView();
+            ColName = new DataGridViewTextBoxColumn();
+            ColValue = new DataGridViewTextBoxColumn();
+            ColNotes = new DataGridViewTextBoxColumn();
             btnInitializeEmailClients = new Button();
             btnResetEmailClients = new Button();
             tabEmailOperations = new TabPage();
@@ -136,15 +108,6 @@
             grpCustomHeders.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgCustomHeaders).BeginInit();
             grpMessageDeliveryStatus.SuspendLayout();
-            grpACS.SuspendLayout();
-            pnlSdkConfig.SuspendLayout();
-            pnlAcsKey.SuspendLayout();
-            pnlAcsEndpoint.SuspendLayout();
-            grpSMTP.SuspendLayout();
-            pnlSmtpConfig.SuspendLayout();
-            pnlSmtpUsernamePassword.SuspendLayout();
-            grpEntraID.SuspendLayout();
-            pnlEntraID.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).BeginInit();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
@@ -154,6 +117,7 @@
             pnlServiceBusConfig.SuspendLayout();
             grpInitializeEmailClients.SuspendLayout();
             pnlInitializeEmailClients.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgEmailClientConfig).BeginInit();
             tabEmailOperations.SuspendLayout();
             grpSendEmail.SuspendLayout();
             SuspendLayout();
@@ -529,307 +493,10 @@
             label8.TabIndex = 18;
             label8.Text = "1 is the highest and 5 is the lowest";
             // 
-            // chk429AutoRetry
-            // 
-            chk429AutoRetry.AutoSize = true;
-            chk429AutoRetry.Location = new Point(129, 4);
-            chk429AutoRetry.Margin = new Padding(3, 2, 3, 2);
-            chk429AutoRetry.Name = "chk429AutoRetry";
-            chk429AutoRetry.Size = new Size(15, 14);
-            chk429AutoRetry.TabIndex = 6;
-            chk429AutoRetry.UseVisualStyleBackColor = true;
-            // 
-            // grpACS
-            // 
-            grpACS.Controls.Add(pnlSdkConfig);
-            grpACS.Controls.Add(pnlAcsKey);
-            grpACS.Controls.Add(pnlAcsEndpoint);
-            grpACS.Location = new Point(6, 28);
-            grpACS.Name = "grpACS";
-            grpACS.Size = new Size(724, 108);
-            grpACS.TabIndex = 1;
-            grpACS.TabStop = false;
-            grpACS.Text = "Azure Communication Services";
-            // 
-            // pnlSdkConfig
-            // 
-            pnlSdkConfig.Controls.Add(chk429AutoRetry);
-            pnlSdkConfig.Controls.Add(label12);
-            pnlSdkConfig.Location = new Point(6, 80);
-            pnlSdkConfig.Name = "pnlSdkConfig";
-            pnlSdkConfig.Size = new Size(718, 22);
-            pnlSdkConfig.TabIndex = 2;
-            // 
-            // label12
-            // 
-            label12.AutoSize = true;
-            label12.Location = new Point(36, 3);
-            label12.Name = "label12";
-            label12.Size = new Size(87, 15);
-            label12.TabIndex = 26;
-            label12.Text = "429 Auto Retry:";
-            // 
-            // pnlAcsKey
-            // 
-            pnlAcsKey.Controls.Add(txtAccessKey);
-            pnlAcsKey.Controls.Add(btnShowAcsKey);
-            pnlAcsKey.Controls.Add(label15);
-            pnlAcsKey.Location = new Point(6, 51);
-            pnlAcsKey.Name = "pnlAcsKey";
-            pnlAcsKey.Size = new Size(718, 23);
-            pnlAcsKey.TabIndex = 1;
-            // 
-            // txtAccessKey
-            // 
-            txtAccessKey.Location = new Point(129, 0);
-            txtAccessKey.Name = "txtAccessKey";
-            txtAccessKey.Size = new Size(488, 23);
-            txtAccessKey.TabIndex = 3;
-            txtAccessKey.UseSystemPasswordChar = true;
-            // 
-            // btnShowAcsKey
-            // 
-            btnShowAcsKey.Location = new Point(630, -1);
-            btnShowAcsKey.Margin = new Padding(3, 2, 3, 2);
-            btnShowAcsKey.Name = "btnShowAcsKey";
-            btnShowAcsKey.Size = new Size(82, 22);
-            btnShowAcsKey.TabIndex = 4;
-            btnShowAcsKey.Text = "Show";
-            btnShowAcsKey.UseVisualStyleBackColor = true;
-            btnShowAcsKey.Click += btnShowAcsKey_Click;
-            // 
-            // label15
-            // 
-            label15.AutoSize = true;
-            label15.Location = new Point(69, 3);
-            label15.Name = "label15";
-            label15.Size = new Size(54, 15);
-            label15.TabIndex = 27;
-            label15.Text = "ACS Key:";
-            // 
-            // pnlAcsEndpoint
-            // 
-            pnlAcsEndpoint.Controls.Add(label14);
-            pnlAcsEndpoint.Controls.Add(txtAcsEndpoint);
-            pnlAcsEndpoint.Location = new Point(6, 22);
-            pnlAcsEndpoint.Name = "pnlAcsEndpoint";
-            pnlAcsEndpoint.Size = new Size(718, 23);
-            pnlAcsEndpoint.TabIndex = 0;
-            // 
-            // label14
-            // 
-            label14.AutoSize = true;
-            label14.Location = new Point(40, 3);
-            label14.Name = "label14";
-            label14.Size = new Size(83, 15);
-            label14.TabIndex = 26;
-            label14.Text = "ACS Endpoint:";
-            // 
-            // txtAcsEndpoint
-            // 
-            txtAcsEndpoint.Location = new Point(129, 0);
-            txtAcsEndpoint.Name = "txtAcsEndpoint";
-            txtAcsEndpoint.Size = new Size(583, 23);
-            txtAcsEndpoint.TabIndex = 2;
-            // 
-            // grpSMTP
-            // 
-            grpSMTP.Controls.Add(pnlSmtpConfig);
-            grpSMTP.Controls.Add(pnlSmtpUsernamePassword);
-            grpSMTP.Location = new Point(6, 262);
-            grpSMTP.Name = "grpSMTP";
-            grpSMTP.Size = new Size(724, 143);
-            grpSMTP.TabIndex = 3;
-            grpSMTP.TabStop = false;
-            grpSMTP.Text = "SMTP";
-            // 
-            // pnlSmtpConfig
-            // 
-            pnlSmtpConfig.Controls.Add(txtSmtpEndpoint);
-            pnlSmtpConfig.Controls.Add(txtSmtpPort);
-            pnlSmtpConfig.Controls.Add(label16);
-            pnlSmtpConfig.Controls.Add(label17);
-            pnlSmtpConfig.Location = new Point(6, 22);
-            pnlSmtpConfig.Name = "pnlSmtpConfig";
-            pnlSmtpConfig.Size = new Size(717, 54);
-            pnlSmtpConfig.TabIndex = 0;
-            // 
-            // txtSmtpEndpoint
-            // 
-            txtSmtpEndpoint.Location = new Point(129, 0);
-            txtSmtpEndpoint.Name = "txtSmtpEndpoint";
-            txtSmtpEndpoint.Size = new Size(250, 23);
-            txtSmtpEndpoint.TabIndex = 0;
-            // 
-            // txtSmtpPort
-            // 
-            txtSmtpPort.Location = new Point(129, 29);
-            txtSmtpPort.Name = "txtSmtpPort";
-            txtSmtpPort.Size = new Size(141, 23);
-            txtSmtpPort.TabIndex = 1;
-            // 
-            // label16
-            // 
-            label16.AutoSize = true;
-            label16.Location = new Point(32, 3);
-            label16.Name = "label16";
-            label16.Size = new Size(91, 15);
-            label16.TabIndex = 23;
-            label16.Text = "SMTP Endpoint:";
-            // 
-            // label17
-            // 
-            label17.AutoSize = true;
-            label17.Location = new Point(58, 32);
-            label17.Name = "label17";
-            label17.Size = new Size(65, 15);
-            label17.TabIndex = 30;
-            label17.Text = "SMTP Port:";
-            // 
-            // pnlSmtpUsernamePassword
-            // 
-            pnlSmtpUsernamePassword.Controls.Add(btnShowSmtpPassword);
-            pnlSmtpUsernamePassword.Controls.Add(label13);
-            pnlSmtpUsernamePassword.Controls.Add(label18);
-            pnlSmtpUsernamePassword.Controls.Add(txtSmtpUsername);
-            pnlSmtpUsernamePassword.Controls.Add(txtSmtpPassword);
-            pnlSmtpUsernamePassword.Location = new Point(6, 84);
-            pnlSmtpUsernamePassword.Name = "pnlSmtpUsernamePassword";
-            pnlSmtpUsernamePassword.Size = new Size(717, 54);
-            pnlSmtpUsernamePassword.TabIndex = 1;
-            // 
-            // btnShowSmtpPassword
-            // 
-            btnShowSmtpPassword.Location = new Point(385, 32);
-            btnShowSmtpPassword.Margin = new Padding(3, 2, 3, 2);
-            btnShowSmtpPassword.Name = "btnShowSmtpPassword";
-            btnShowSmtpPassword.Size = new Size(82, 22);
-            btnShowSmtpPassword.TabIndex = 2;
-            btnShowSmtpPassword.Text = "Show";
-            btnShowSmtpPassword.UseVisualStyleBackColor = true;
-            btnShowSmtpPassword.Click += btnShowSmtpPassword_Click;
-            // 
-            // label13
-            // 
-            label13.AutoSize = true;
-            label13.Location = new Point(28, 3);
-            label13.Name = "label13";
-            label13.Size = new Size(96, 15);
-            label13.TabIndex = 37;
-            label13.Text = "SMTP Username:";
-            // 
-            // label18
-            // 
-            label18.AutoSize = true;
-            label18.Location = new Point(30, 32);
-            label18.Name = "label18";
-            label18.Size = new Size(93, 15);
-            label18.TabIndex = 38;
-            label18.Text = "SMTP Password:";
-            // 
-            // txtSmtpUsername
-            // 
-            txtSmtpUsername.Location = new Point(129, 0);
-            txtSmtpUsername.Name = "txtSmtpUsername";
-            txtSmtpUsername.Size = new Size(250, 23);
-            txtSmtpUsername.TabIndex = 0;
-            // 
-            // txtSmtpPassword
-            // 
-            txtSmtpPassword.Location = new Point(129, 29);
-            txtSmtpPassword.Name = "txtSmtpPassword";
-            txtSmtpPassword.Size = new Size(250, 23);
-            txtSmtpPassword.TabIndex = 1;
-            txtSmtpPassword.UseSystemPasswordChar = true;
-            // 
-            // grpEntraID
-            // 
-            grpEntraID.Controls.Add(pnlEntraID);
-            grpEntraID.Location = new Point(6, 142);
-            grpEntraID.Name = "grpEntraID";
-            grpEntraID.Size = new Size(724, 114);
-            grpEntraID.TabIndex = 2;
-            grpEntraID.TabStop = false;
-            grpEntraID.Text = "Entra ID";
-            // 
-            // pnlEntraID
-            // 
-            pnlEntraID.Controls.Add(btnShowEntraIdSecret);
-            pnlEntraID.Controls.Add(txtEntraIdClientSecret);
-            pnlEntraID.Controls.Add(txtEntraIdClientID);
-            pnlEntraID.Controls.Add(txtEntraIdTenantID);
-            pnlEntraID.Controls.Add(label23);
-            pnlEntraID.Controls.Add(label22);
-            pnlEntraID.Controls.Add(label21);
-            pnlEntraID.Location = new Point(6, 22);
-            pnlEntraID.Name = "pnlEntraID";
-            pnlEntraID.Size = new Size(718, 82);
-            pnlEntraID.TabIndex = 40;
-            // 
-            // btnShowEntraIdSecret
-            // 
-            btnShowEntraIdSecret.Location = new Point(473, 60);
-            btnShowEntraIdSecret.Margin = new Padding(3, 2, 3, 2);
-            btnShowEntraIdSecret.Name = "btnShowEntraIdSecret";
-            btnShowEntraIdSecret.Size = new Size(82, 22);
-            btnShowEntraIdSecret.TabIndex = 6;
-            btnShowEntraIdSecret.Text = "Show";
-            btnShowEntraIdSecret.UseVisualStyleBackColor = true;
-            btnShowEntraIdSecret.Click += btnShowEntraIdSecret_Click;
-            // 
-            // txtEntraIdClientSecret
-            // 
-            txtEntraIdClientSecret.Location = new Point(129, 59);
-            txtEntraIdClientSecret.Name = "txtEntraIdClientSecret";
-            txtEntraIdClientSecret.Size = new Size(338, 23);
-            txtEntraIdClientSecret.TabIndex = 5;
-            txtEntraIdClientSecret.UseSystemPasswordChar = true;
-            // 
-            // txtEntraIdClientID
-            // 
-            txtEntraIdClientID.Location = new Point(129, 28);
-            txtEntraIdClientID.Name = "txtEntraIdClientID";
-            txtEntraIdClientID.Size = new Size(250, 23);
-            txtEntraIdClientID.TabIndex = 4;
-            // 
-            // txtEntraIdTenantID
-            // 
-            txtEntraIdTenantID.Location = new Point(129, -1);
-            txtEntraIdTenantID.Name = "txtEntraIdTenantID";
-            txtEntraIdTenantID.Size = new Size(250, 23);
-            txtEntraIdTenantID.TabIndex = 3;
-            // 
-            // label23
-            // 
-            label23.AutoSize = true;
-            label23.Location = new Point(3, 62);
-            label23.Name = "label23";
-            label23.Size = new Size(120, 15);
-            label23.TabIndex = 2;
-            label23.Text = "Entra ID Client Secret:";
-            // 
-            // label22
-            // 
-            label22.AutoSize = true;
-            label22.Location = new Point(25, 31);
-            label22.Name = "label22";
-            label22.Size = new Size(98, 15);
-            label22.TabIndex = 1;
-            label22.Text = "Entra ID Client Id:";
-            // 
-            // label21
-            // 
-            label21.AutoSize = true;
-            label21.Location = new Point(21, 2);
-            label21.Name = "label21";
-            label21.Size = new Size(102, 15);
-            label21.TabIndex = 0;
-            label21.Text = "Entra ID Tenant Id:";
-            // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(19, 3);
+            label11.Location = new Point(5, 3);
             label11.Name = "label11";
             label11.Size = new Size(116, 15);
             label11.TabIndex = 25;
@@ -840,7 +507,7 @@
             cmbAuthType.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbAuthType.FormattingEnabled = true;
             cmbAuthType.Items.AddRange(new object[] { "ACS Key", "Entra ID Default Auth", "Entra ID Client Auth", "Interactive", "SMTP Username/Password" });
-            cmbAuthType.Location = new Point(141, 0);
+            cmbAuthType.Location = new Point(124, 0);
             cmbAuthType.Margin = new Padding(3, 2, 3, 2);
             cmbAuthType.Name = "cmbAuthType";
             cmbAuthType.Size = new Size(176, 23);
@@ -1073,26 +740,59 @@
             grpInitializeEmailClients.Controls.Add(btnResetEmailClients);
             grpInitializeEmailClients.Location = new Point(6, 147);
             grpInitializeEmailClients.Name = "grpInitializeEmailClients";
-            grpInitializeEmailClients.Size = new Size(736, 466);
+            grpInitializeEmailClients.Size = new Size(736, 376);
             grpInitializeEmailClients.TabIndex = 1;
             grpInitializeEmailClients.TabStop = false;
             grpInitializeEmailClients.Text = "Initialize Email Clients";
             // 
             // pnlInitializeEmailClients
             // 
+            pnlInitializeEmailClients.Controls.Add(dgEmailClientConfig);
             pnlInitializeEmailClients.Controls.Add(label11);
-            pnlInitializeEmailClients.Controls.Add(grpSMTP);
-            pnlInitializeEmailClients.Controls.Add(grpEntraID);
-            pnlInitializeEmailClients.Controls.Add(grpACS);
             pnlInitializeEmailClients.Controls.Add(cmbAuthType);
-            pnlInitializeEmailClients.Location = new Point(0, 22);
+            pnlInitializeEmailClients.Location = new Point(6, 22);
             pnlInitializeEmailClients.Name = "pnlInitializeEmailClients";
-            pnlInitializeEmailClients.Size = new Size(735, 407);
+            pnlInitializeEmailClients.Size = new Size(723, 318);
             pnlInitializeEmailClients.TabIndex = 0;
+            // 
+            // dgEmailClientConfig
+            // 
+            dgEmailClientConfig.AllowUserToAddRows = false;
+            dgEmailClientConfig.AllowUserToDeleteRows = false;
+            dgEmailClientConfig.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgEmailClientConfig.Columns.AddRange(new DataGridViewColumn[] { ColName, ColValue, ColNotes });
+            dgEmailClientConfig.Location = new Point(5, 28);
+            dgEmailClientConfig.Name = "dgEmailClientConfig";
+            dgEmailClientConfig.Size = new Size(715, 281);
+            dgEmailClientConfig.TabIndex = 3;
+            dgEmailClientConfig.CellBeginEdit += dgEmailClientConfig_CellBeginEdit;
+            dgEmailClientConfig.CellEndEdit += dgEmailClientConfig_CellEndEdit;
+            dgEmailClientConfig.EditingControlShowing += dgEmailClientConfig_EditingControlShowing;
+            // 
+            // ColName
+            // 
+            ColName.HeaderText = "Name";
+            ColName.Name = "ColName";
+            ColName.ReadOnly = true;
+            ColName.Width = 130;
+            // 
+            // ColValue
+            // 
+            ColValue.HeaderText = "Value";
+            ColValue.Name = "ColValue";
+            ColValue.SortMode = DataGridViewColumnSortMode.NotSortable;
+            ColValue.Width = 300;
+            // 
+            // ColNotes
+            // 
+            ColNotes.HeaderText = "Notes";
+            ColNotes.Name = "ColNotes";
+            ColNotes.ReadOnly = true;
+            ColNotes.Width = 240;
             // 
             // btnInitializeEmailClients
             // 
-            btnInitializeEmailClients.Location = new Point(484, 434);
+            btnInitializeEmailClients.Location = new Point(483, 345);
             btnInitializeEmailClients.Name = "btnInitializeEmailClients";
             btnInitializeEmailClients.Size = new Size(120, 23);
             btnInitializeEmailClients.TabIndex = 1;
@@ -1102,7 +802,7 @@
             // 
             // btnResetEmailClients
             // 
-            btnResetEmailClients.Location = new Point(610, 435);
+            btnResetEmailClients.Location = new Point(609, 346);
             btnResetEmailClients.Name = "btnResetEmailClients";
             btnResetEmailClients.Size = new Size(120, 23);
             btnResetEmailClients.TabIndex = 2;
@@ -1162,21 +862,6 @@
             ((System.ComponentModel.ISupportInitialize)dgCustomHeaders).EndInit();
             grpMessageDeliveryStatus.ResumeLayout(false);
             grpMessageDeliveryStatus.PerformLayout();
-            grpACS.ResumeLayout(false);
-            pnlSdkConfig.ResumeLayout(false);
-            pnlSdkConfig.PerformLayout();
-            pnlAcsKey.ResumeLayout(false);
-            pnlAcsKey.PerformLayout();
-            pnlAcsEndpoint.ResumeLayout(false);
-            pnlAcsEndpoint.PerformLayout();
-            grpSMTP.ResumeLayout(false);
-            pnlSmtpConfig.ResumeLayout(false);
-            pnlSmtpConfig.PerformLayout();
-            pnlSmtpUsernamePassword.ResumeLayout(false);
-            pnlSmtpUsernamePassword.PerformLayout();
-            grpEntraID.ResumeLayout(false);
-            pnlEntraID.ResumeLayout(false);
-            pnlEntraID.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numEmailsToSend).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -1190,6 +875,7 @@
             grpInitializeEmailClients.ResumeLayout(false);
             pnlInitializeEmailClients.ResumeLayout(false);
             pnlInitializeEmailClients.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgEmailClientConfig).EndInit();
             tabEmailOperations.ResumeLayout(false);
             grpSendEmail.ResumeLayout(false);
             ResumeLayout(false);
@@ -1224,54 +910,22 @@
         private Label label7;
         private Label label8;
         private DataGridViewComboBoxColumn attachType_Old;
-        private CheckBox chk429AutoRetry;
         private Label label9;
         private ComboBox cmbSendWaitUntil;
         private Label label10;
         private NumericUpDown numEmailsToSend;
         private ComboBox cmbAuthType;
         private Label label11;
-        private Label label12;
         private Panel panel1;
         private Panel panel2;
-        private Label label14;
-        private Label label15;
-        private TextBox txtAcsEndpoint;
-        private TextBox txtAccessKey;
-        private Label label16;
-        private TextBox txtSmtpEndpoint;
-        private Label label17;
-        private TextBox txtSmtpPort;
-        private Button btnShowAcsKey;
-        private Panel pnlSmtpConfig;
         private Button btnSendEmail;
         private ComboBox cmbClientType;
         private Label label1;
         private Button btnStopSendingEmail;
         private Button btnGetBase64String;
-        private TextBox txtSmtpPassword;
-        private TextBox txtSmtpUsername;
         private TabControl tabControl1;
         private TabPage tabConfiguration;
         private TabPage tabEmailOperations;
-        private Label label18;
-        private Label label13;
-        private Panel pnlSmtpUsernamePassword;
-        private Panel pnlEntraID;
-        private TextBox txtEntraIdClientSecret;
-        private TextBox txtEntraIdClientID;
-        private TextBox txtEntraIdTenantID;
-        private Label label23;
-        private Label label22;
-        private Label label21;
-        private Panel pnlAcsEndpoint;
-        private Panel pnlAcsKey;
-        private Button btnShowEntraIdSecret;
-        private GroupBox grpSMTP;
-        private GroupBox grpEntraID;
-        private GroupBox grpACS;
-        private Button btnShowSmtpPassword;
-        private Panel pnlSdkConfig;
         private Button btnInitializeEmailClients;
         private Button btnResetEmailClients;
         private GroupBox grpSendEmail;
@@ -1296,5 +950,9 @@
         private DataGridViewTextBoxColumn colHeaderName;
         private DataGridViewTextBoxColumn colHeaderValue;
         private Button btnServiceBusStopMonitoring;
+        private DataGridView dgEmailClientConfig;
+        private DataGridViewTextBoxColumn ColName;
+        private DataGridViewTextBoxColumn ColValue;
+        private DataGridViewTextBoxColumn ColNotes;
     }
 }

@@ -39,6 +39,9 @@ namespace AzureCommunicationEmailService
 
         public const string SERVICE_BUS_CONNECTION_STRING = "ServiceBusConnectionString";
         public const string SERVICE_BUS_QUEUE_NAME = "ServiceBusQueueName";
+
+        public const string USE_OAUTH2 = "UseOAuth2";
+        public const string AUTO_RETRY_ON_429 = "AutoRetryOn429";
     }
 
     public class EnvironmentVariable

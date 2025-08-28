@@ -1,10 +1,10 @@
 using Azure;
-using Microsoft.Extensions.Configuration;
-using System.Net.Mail;
 using AzureCommunicationEmailService.EmailManagers;
 using AzureCommunicationEmailService.Models;
 using HeyRed.Mime;
+using Microsoft.Extensions.Configuration;
 using ServiceBusReceiver;
+using System.Net.Mail;
 
 namespace AzureCommunicationEmailService
 {
@@ -51,6 +51,12 @@ namespace AzureCommunicationEmailService
             public const int SMTP_BASIC_AUTH = 4;
         }
 
+        private class dgEmailClientConfigColumnIndex
+        {
+            public const int NAME = 0;
+            public const int VALUE = 1;
+            public const int NOTES = 2;
+        }
 
         private MessageDeliveryStatusManager _msgDeliveryStatusManager = null;
         private List<EmailClientManagerBase> _emailClientList;
@@ -59,6 +65,26 @@ namespace AzureCommunicationEmailService
         public delegate void WriteExceptionDelegate(Exception ex);
 
         private ServiceBusReceiverManager _serviceBusReceiverManager = null;
+
+        private List<EmailAuthConfig> _emailAuthConfig;
+
+        private class EmailClientConfigName
+        {
+            public const string ACS_ENDPOINT = "ACS Endpoint";
+            public const string ACS_ACCESS_KEY = "ACS Access Key";
+            public const string TENANT_ID = "Tenant Id";
+            public const string ENTRA_ID_CLIENT_ID = "Entra ID Client Id";
+            public const string ENTRA_ID_CLIENT_SECRET = "Entra ID Client Secret";
+            public const string ENV_VARIABLE_TENANT_ID = "Env. Variable Tenant Id";
+            public const string ENV_VARIABLE_ENTRA_ID_CLIENT_ID = "Env. Variable Entra ID Client Id";
+            public const string ENV_VARIABLE_ENTRA_ID_CLIENT_SECRET = "Env. Variable Entra ID Client Secret";
+            public const string SMTP_ENDPOINT = "Smtp Endpoint";
+            public const string SMTP_PORT = "Smtp Port";
+            public const string SMTP_USERNAME = "Smtp Username";
+            public const string SMTP_PASSWORD = "Smtp Password";
+            public const string USE_OAUTH2 = "Use OAuth2";
+            public const string AUTO_RETRY_429 = "429 Auto Retry";
+        }
 
         public frmMain()
         {
@@ -74,16 +100,10 @@ namespace AzureCommunicationEmailService
 
             this.Text += $" (v{Helpers.GetFormattedApplicationVersion()})";
 
-            txtAcsEndpoint.Text = configWrapper.ACSEndpoint;
-            txtAccessKey.Text = configWrapper.ACSAccessKey;
-            txtSmtpEndpoint.Text = configWrapper.SmtpEndpoint;
-            txtSmtpPort.Text = configWrapper.SmtpPort.ToString();
             txtFrom.Text = configWrapper.From;
             txtSubject.Text = configWrapper.Subject;
             chkIsHtmlBody.Checked = configWrapper.UseHtmlBody;
             txtBody.Text = configWrapper.UseHtmlBody ? configWrapper.HtmlBody : configWrapper.Body;
-            txtSmtpUsername.Text = configWrapper.SmtpUsername;
-            txtSmtpPassword.Text = configWrapper.SmtpPassword;
             txtServiceBusConnectionString.Text = configWrapper.ServiceBusConnectionString;
             txtServiceBusQueueName.Text = configWrapper.ServiceBusQueueName;
             FillReceipents(configWrapper.To, ReceipentType.TO);
@@ -102,7 +122,7 @@ namespace AzureCommunicationEmailService
 
             FillCustomCredentials(configWrapper.TenantId, configWrapper.ENTRA_ID_ClientId, configWrapper.ENTRA_ID_ClientSecret);
 
-            FillEntraIdInformation(configWrapper.TenantId, configWrapper.ENTRA_ID_ClientId, configWrapper.ENTRA_ID_ClientSecret);
+            FillEmailAuthConfiguration();
 
             FillAuthenticationType(configWrapper.AuthenticationType);
 
@@ -115,6 +135,171 @@ namespace AzureCommunicationEmailService
             DisableEnableEmailOperationsTab(false);
 
             WriteTrace($"Application verson: {Helpers.GetFormattedApplicationVersion()}");
+        }
+
+        private void FillEmailAuthConfiguration()
+        {
+            _emailAuthConfig = new List<EmailAuthConfig>()
+            {
+                //Strings
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ACS_ENDPOINT,
+                    Value = configWrapper.ACSEndpoint,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> {DropAuthTypeIndex.ACS_KEY, DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT, DropAuthTypeIndex.INTERACTIVE, DropAuthTypeIndex.SMTP_BASIC_AUTH},
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ACS_ACCESS_KEY,
+                    Value = configWrapper.ACSAccessKey,
+                    IsReadOnly = false,
+                    IsPassword = true,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ACS_KEY }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.TENANT_ID,
+                    Value = configWrapper.TenantId,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_CLIENT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ENTRA_ID_CLIENT_ID,
+                    Value = configWrapper.ENTRA_ID_ClientId,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_CLIENT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ENTRA_ID_CLIENT_SECRET,
+                    Value = configWrapper.ENTRA_ID_ClientSecret,
+                    IsReadOnly = false,
+                    IsPassword = true,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_CLIENT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ENV_VARIABLE_TENANT_ID,
+                    Value = Helpers.EnvironmentVarCredentials.TenantId,
+                    IsReadOnly = true,
+                    IsPassword = false,
+                    Notes = "Value read from AZURE_TENANT_ID environment variable",
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_DEFAULT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ENV_VARIABLE_ENTRA_ID_CLIENT_ID,
+                    Value = Helpers.EnvironmentVarCredentials.ClientId,
+                    IsReadOnly = true,
+                    IsPassword = false,
+                    Notes = "Value read from AZURE_CLIENT_ID environment variable",
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_DEFAULT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.ENV_VARIABLE_ENTRA_ID_CLIENT_SECRET,
+                    Value = Helpers.EnvironmentVarCredentials.ClientSecret,
+                    IsReadOnly = true,
+                    IsPassword = true,
+                    Notes = "Value read from AZURE_CLIENT_SECRET environment variable",
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_DEFAULT }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.SMTP_ENDPOINT,
+                    Value = configWrapper.SmtpEndpoint,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT, DropAuthTypeIndex.SMTP_BASIC_AUTH }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.SMTP_USERNAME,
+                    Value = configWrapper.SmtpUsername,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT, DropAuthTypeIndex.SMTP_BASIC_AUTH }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.String)
+                {
+                    Name = EmailClientConfigName.SMTP_PASSWORD,
+                    Value = configWrapper.SmtpPassword,
+                    IsReadOnly = false,
+                    IsPassword = true,
+                    AuthTypes = new List<int> { DropAuthTypeIndex.SMTP_BASIC_AUTH }
+                },
+
+                //Integers
+                new EmailAuthConfig(EmailAuthConfig.ValueType.Integer)
+                {
+                    Name = EmailClientConfigName.SMTP_PORT,
+                    Value = configWrapper.SmtpPort,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    AuthTypes = new List<int> {DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT, DropAuthTypeIndex.SMTP_BASIC_AUTH }
+                },
+
+                //Booleans
+                new EmailAuthConfig(EmailAuthConfig.ValueType.Boolean)
+                {
+                    Name =EmailClientConfigName.AUTO_RETRY_429,
+                    Value = configWrapper.AutoRetryOn429,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    Notes = "Only available with SDK Client",
+                    AuthTypes = new List<int> {DropAuthTypeIndex.ACS_KEY, DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT, DropAuthTypeIndex.INTERACTIVE }
+                },
+
+                new EmailAuthConfig(EmailAuthConfig.ValueType.Boolean)
+                {
+                    Name = EmailClientConfigName.USE_OAUTH2,
+                    Value = configWrapper.UseOAuth2,
+                    IsReadOnly = false,
+                    IsPassword = false,
+                    Notes="Only available with MailKit Client and Smtp Username must be provided",
+                    AuthTypes = new List<int> {DropAuthTypeIndex.ENTRA_ID_DEFAULT, DropAuthTypeIndex.ENTRA_ID_CLIENT }
+                },
+            };
+        }
+
+        private void DisplayEmailAuthConfiguration(int authtype)
+        {
+            dgEmailClientConfig.Rows.Clear();
+
+            foreach (var cell in _emailAuthConfig.Where(c => c.AuthTypes.Contains(authtype)))
+            {
+                DataGridViewRow newRow = new DataGridViewRow();
+
+                newRow.Cells.Add(new DataGridViewTextBoxCell { Value = cell.Name });
+
+                if (cell.ValType == EmailAuthConfig.ValueType.Boolean)
+                {
+                    newRow.Cells.Add(new DataGridViewCheckBoxCell { Value = cell.Value });
+                }
+                else
+                {
+                    newRow.Cells.Add(new DataGridViewTextBoxCell { Value = cell.IsPassword ? cell.GetMaskedValue() : cell.Value });
+                }
+
+                newRow.Cells.Add(new DataGridViewTextBoxCell { Value = cell.Notes });
+
+                dgEmailClientConfig.Rows.Add(newRow);
+            }
         }
 
         private void DisableEnableEmailOperationsTab(bool enable)
@@ -357,68 +542,9 @@ namespace AzureCommunicationEmailService
             _msgDeliveryStatusManager.CheckDeliveryStatus(txtMessageID.Text.Trim());
         }
 
-        private void FillEntraIdInformation(string clientId, string clientSecret, string tenantId)
-        {
-            txtEntraIdClientID.Text = clientId;
-            txtEntraIdClientSecret.Text = clientSecret;
-            txtEntraIdTenantID.Text = tenantId;
-        }
-
         private void cmbAuthType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (cmbAuthType.SelectedIndex)
-            {
-                case DropAuthTypeIndex.ACS_KEY:
-                    pnlAcsEndpoint.Enabled = true;
-                    pnlAcsKey.Enabled = true;
-                    pnlSdkConfig.Enabled = true;
-                    pnlEntraID.Enabled = false;
-                    pnlSmtpConfig.Enabled = false;
-                    pnlSmtpUsernamePassword.Enabled = false;
-                    break;
-
-                case DropAuthTypeIndex.ENTRA_ID_CLIENT:
-                    pnlAcsEndpoint.Enabled = true;
-                    pnlAcsKey.Enabled = false;
-                    pnlSdkConfig.Enabled = true;
-                    pnlEntraID.Enabled = true;
-                    pnlSmtpConfig.Enabled = true;
-                    pnlSmtpUsernamePassword.Enabled = false;
-                    txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = false;
-
-                    FillEntraIdInformation(Helpers.ClientCredentials.ClientId, Helpers.ClientCredentials.ClientSecret, Helpers.ClientCredentials.TenantId);
-                    break;
-
-                case DropAuthTypeIndex.ENTRA_ID_DEFAULT:
-                    pnlAcsEndpoint.Enabled = true;
-                    pnlAcsKey.Enabled = false;
-                    pnlSdkConfig.Enabled = true;
-                    pnlEntraID.Enabled = true;
-                    pnlSmtpConfig.Enabled = true;
-                    pnlSmtpUsernamePassword.Enabled = false;
-                    txtEntraIdClientID.ReadOnly = txtEntraIdClientSecret.ReadOnly = txtEntraIdTenantID.ReadOnly = true;
-
-                    FillEntraIdInformation(Helpers.EnvironmentVarCredentials.ClientId, Helpers.EnvironmentVarCredentials.ClientSecret, Helpers.EnvironmentVarCredentials.TenantId);
-                    break;
-
-                case DropAuthTypeIndex.INTERACTIVE:
-                    pnlAcsEndpoint.Enabled = true;
-                    pnlAcsKey.Enabled = false;
-                    pnlSdkConfig.Enabled = true;
-                    pnlEntraID.Enabled = false;
-                    pnlSmtpConfig.Enabled = false;
-                    pnlSmtpUsernamePassword.Enabled = false;
-                    break;
-
-                case DropAuthTypeIndex.SMTP_BASIC_AUTH:
-                    pnlAcsEndpoint.Enabled = false;
-                    pnlAcsKey.Enabled = false;
-                    pnlSdkConfig.Enabled = false;
-                    pnlEntraID.Enabled = false;
-                    pnlSmtpConfig.Enabled = true;
-                    pnlSmtpUsernamePassword.Enabled = true;
-                    break;
-            }
+            DisplayEmailAuthConfiguration(cmbAuthType.SelectedIndex);
         }
 
         private void HideShowPassword(Button button, TextBox passwordTextBox)
@@ -435,20 +561,6 @@ namespace AzureCommunicationEmailService
             }
         }
 
-        private void btnShowAcsKey_Click(object sender, EventArgs e)
-        {
-            HideShowPassword((Button)sender, txtAccessKey);
-        }
-
-        private void btnShowEntraIdSecret_Click(object sender, EventArgs e)
-        {
-            HideShowPassword((Button)sender, txtEntraIdClientSecret);
-        }
-
-        private void btnShowSmtpPassword_Click(object sender, EventArgs e)
-        {
-            HideShowPassword((Button)sender, txtSmtpPassword);
-        }
 
         private void InitializeEmailClientManagers()
         {
@@ -473,7 +585,7 @@ namespace AzureCommunicationEmailService
 
                 case DropAuthTypeIndex.ENTRA_ID_CLIENT:
                     authenticationType = EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets;
-                    Helpers.UpdateClientCredentials(txtEntraIdTenantID.Text.Trim(), txtEntraIdClientID.Text.Trim(), txtEntraIdClientSecret.Text.Trim());
+                    Helpers.UpdateClientCredentials(_emailAuthConfig.First(c => c.Name == EmailClientConfigName.TENANT_ID).GetStringValue().Trim(), _emailAuthConfig.First(c => c.Name == EmailClientConfigName.ENTRA_ID_CLIENT_ID).GetStringValue().Trim(), _emailAuthConfig.First(c => c.Name == EmailClientConfigName.ENTRA_ID_CLIENT_SECRET).GetStringValue().Trim());
                     break;
 
                 case DropAuthTypeIndex.INTERACTIVE:
@@ -490,16 +602,16 @@ namespace AzureCommunicationEmailService
                     break;
             }
 
-            int smtpPort;
-            string acsEndpoint = txtAcsEndpoint.Text.Trim();
-            string acsKey = txtAccessKey.Text.Trim();
-            string smtpEndpoint = txtSmtpEndpoint.Text.Trim();
-            Int32.TryParse(txtSmtpPort.Text.Trim(), out smtpPort);
-            bool autoRetry = chk429AutoRetry.Checked;
+            string acsEndpoint = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.ACS_ENDPOINT).GetStringValue().Trim();
+            string acsKey = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.ACS_ACCESS_KEY).GetStringValue().Trim();
+            string smtpEndpoint = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.SMTP_ENDPOINT).GetStringValue().Trim();
+            int smtpPort = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.SMTP_PORT).GetIntegerValue() ?? 0;
+            bool autoRetry = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.AUTO_RETRY_429).GetBooleanValue() ?? false;
+            bool mailKitUseOAuth2 = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.USE_OAUTH2).GetBooleanValue() ?? false;
             EntraIdCredentials entraIdCredentials = authenticationType == EmailClientConfiguration.AuthenticationType.EntraIdClientSecrets ? Helpers.ClientCredentials : (authenticationType == EmailClientConfiguration.AuthenticationType.EntraIdDefaultCredentials ? Helpers.EnvironmentVarCredentials : null);
-            SmtpUsernamePassword smtpUsernamePassword = new SmtpUsernamePassword() { Username = txtSmtpUsername.Text.Trim(), Password = txtSmtpPassword.Text.Trim() };
+            SmtpUsernamePassword smtpUsernamePassword = new SmtpUsernamePassword() { Username = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.SMTP_USERNAME).GetStringValue().Trim(), Password = _emailAuthConfig.First(c => c.Name == EmailClientConfigName.SMTP_PASSWORD).GetStringValue().Trim() };
 
-            EmailClientConfiguration emailClientConfiguration = new EmailClientConfiguration(authenticationType, acsEndpoint, acsKey, smtpEndpoint, smtpPort, autoRetry, entraIdCredentials, smtpUsernamePassword);
+            EmailClientConfiguration emailClientConfiguration = new EmailClientConfiguration(authenticationType, acsEndpoint, acsKey, smtpEndpoint, smtpPort, autoRetry, entraIdCredentials, smtpUsernamePassword, mailKitUseOAuth2);
 
             _msgDeliveryStatusManager = new MessageDeliveryStatusManager();
             _msgDeliveryStatusManager.Initialize(emailClientConfiguration, WriteTrace, WriteException);
@@ -700,6 +812,83 @@ namespace AzureCommunicationEmailService
             WriteTrace($"<-- Event received: {Environment.NewLine}===================={Environment.NewLine}{e.Body}{Environment.NewLine}====================");
         }
 
+        private void dgEmailClientConfig_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (dgEmailClientConfig.CurrentCell.ColumnIndex == dgEmailClientConfigColumnIndex.VALUE)
+            {
+                e.Control.KeyPress -= new KeyPressEventHandler(dgEmailClientConfigIntValueCell_KeyPressEnforceNumbers);
+                e.Control.KeyPress -= new KeyPressEventHandler(dgEmailClientConfigIntValueCell_KeyPressReadOnly);
 
+                EmailAuthConfig emailAuthConfig = _emailAuthConfig.First(c => c.Name == dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.NAME].Value.ToString());
+
+                if (emailAuthConfig.IsReadOnly)
+                {
+                    TextBox tb = e.Control as TextBox;
+                    if (tb != null)
+                    {
+                        tb.KeyPress += new KeyPressEventHandler(dgEmailClientConfigIntValueCell_KeyPressReadOnly);
+                    }
+                }
+                else if (emailAuthConfig.ValType == EmailAuthConfig.ValueType.Integer)
+                {
+                    TextBox tb = e.Control as TextBox;
+                    if (tb != null)
+                    {
+                        tb.KeyPress += new KeyPressEventHandler(dgEmailClientConfigIntValueCell_KeyPressEnforceNumbers);
+                    }
+                }
+            }
+        }
+
+        private void dgEmailClientConfigIntValueCell_KeyPressEnforceNumbers(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+        private void dgEmailClientConfigIntValueCell_KeyPressReadOnly(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void dgEmailClientConfig_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            if (e.RowIndex > -1 && dgEmailClientConfig.CurrentCell.ColumnIndex == dgEmailClientConfigColumnIndex.VALUE)
+            {
+                EmailAuthConfig emailAuthConfig = _emailAuthConfig.First(c => c.Name == dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.NAME].Value.ToString());
+
+                if (emailAuthConfig.ValType == EmailAuthConfig.ValueType.String && emailAuthConfig.IsPassword)
+                {
+                    dgEmailClientConfig.CurrentCell.Value = emailAuthConfig.GetStringValue();
+                }
+            }
+        }
+
+        private void dgEmailClientConfig_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex > -1 && dgEmailClientConfig.CurrentCell.ColumnIndex == dgEmailClientConfigColumnIndex.VALUE)
+            {
+                EmailAuthConfig emailAuthConfig = _emailAuthConfig.First(c => c.Name == dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.NAME].Value.ToString());
+
+                if (emailAuthConfig.ValType == EmailAuthConfig.ValueType.String)
+                {
+                    emailAuthConfig.Value = dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.VALUE].Value;
+
+                    if (emailAuthConfig.IsPassword)
+                    {
+                        dgEmailClientConfig.CurrentCell.Value = emailAuthConfig.GetMaskedValue();
+                    }
+                }
+                else if (emailAuthConfig.ValType == EmailAuthConfig.ValueType.Integer)
+                {
+                    emailAuthConfig.Value = dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.VALUE].Value;
+                }
+                else if (emailAuthConfig.ValType == EmailAuthConfig.ValueType.Boolean)
+                {
+                    emailAuthConfig.Value = dgEmailClientConfig.Rows[dgEmailClientConfig.CurrentCell.RowIndex].Cells[dgEmailClientConfigColumnIndex.VALUE].Value;
+                }
+            }
+        }
     }
 }

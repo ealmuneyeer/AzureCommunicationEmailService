@@ -20,7 +20,7 @@ namespace AzureCommunicationEmailService.Models
         }
 
         public EmailClientConfiguration(AuthenticationType authenticationType, string acsEndpoint, string acsKey, string smtpEndpoint, int smtpPort, bool autoRetryOn429,
-            EntraIdCredentials entraIdCredentials, SmtpUsernamePassword smtpUsernamePassword)
+            EntraIdCredentials entraIdCredentials, SmtpUsernamePassword smtpUsernamePassword, bool useOAuth2)
         {
             AuthType = authenticationType;
             AcsEndpoint = acsEndpoint;
@@ -30,6 +30,7 @@ namespace AzureCommunicationEmailService.Models
             AutoRetryOn429 = autoRetryOn429;
             EntraIdCredentials = entraIdCredentials;
             SmtpUsernamePassword = smtpUsernamePassword;
+            UseOAuth2 = useOAuth2;
         }
 
         public AuthenticationType AuthType { get; private set; }
@@ -47,5 +48,7 @@ namespace AzureCommunicationEmailService.Models
         public EntraIdCredentials EntraIdCredentials { get; private set; }
 
         public SmtpUsernamePassword SmtpUsernamePassword { get; private set; }
+
+        public bool UseOAuth2 { get; private set; }
     }
 }

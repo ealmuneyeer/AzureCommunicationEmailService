@@ -1,8 +1,9 @@
-﻿using Azure;
-using System.Diagnostics;
-using MimeKit;
-using AzureCommunicationEmailService.Models;
+﻿using AzureCommunicationEmailService.Models;
 using MailKit.Net.Smtp;
+using MailKit.Security;
+using Microsoft.Identity.Client;
+using MimeKit;
+using System.Diagnostics;
 
 namespace AzureCommunicationEmailService.EmailManagers
 {
@@ -45,8 +46,17 @@ namespace AzureCommunicationEmailService.EmailManagers
             using (var mailKitSmtpClient = new SmtpClient())
             {
                 mailKitSmtpClient.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
-                mailKitSmtpClient.Connect(ClientConfiguration.SmtpEndpoint, ClientConfiguration.SmtpPort, MailKit.Security.SecureSocketOptions.StartTlsWhenAvailable);
-                mailKitSmtpClient.Authenticate(_smtpAuthUsername, _smtpAuthPassword);
+                mailKitSmtpClient.Connect(ClientConfiguration.SmtpEndpoint, ClientConfiguration.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+
+                if (ClientConfiguration.UseOAuth2 == true)
+                {
+                    var oauth2 = new SaslMechanismOAuth2(ClientConfiguration.SmtpUsernamePassword.Username, GetOAuthToken().Result);
+                    mailKitSmtpClient.Authenticate(oauth2);
+                }
+                else
+                {
+                    mailKitSmtpClient.Authenticate(_smtpAuthUsername, _smtpAuthPassword);
+                }
 
                 using (MimeMessage mimeMessage = new MimeMessage())
                 {
@@ -162,6 +172,42 @@ namespace AzureCommunicationEmailService.EmailManagers
                     WriteTrace($"***** {sentCount} email(s) has been sent. Time elapsed: {allEmailsStopwatch.Elapsed.ToString(TIME_ELAPSED_FORMAT)}");
                 }
             }
+        }
+        #endregion
+
+        #region "Private functions"
+
+        private async Task<string> GetOAuthToken()
+        {
+            // Build the MSAL confidential client application
+            IConfidentialClientApplication app = ConfidentialClientApplicationBuilder
+                .Create(ClientConfiguration.EntraIdCredentials.ClientId)
+                .WithClientSecret(ClientConfiguration.EntraIdCredentials.ClientSecret)
+                .WithAuthority(new Uri("https://login.microsoftonline.com/common/"))
+                .WithTenantId(ClientConfiguration.EntraIdCredentials.TenantId)
+                .Build();
+
+            // Define the resource scope
+            string[] scopes = new string[] { "https://communication.azure.com/.default" };
+
+            // Acquire token for the client
+            AuthenticationResult result;
+
+            try
+            {
+                result = await app.AcquireTokenForClient(scopes)
+                .ExecuteAsync();
+            }
+            catch (MsalClaimsChallengeException ex) when (ex.Claims != null)
+            {
+                result = await app.AcquireTokenForClient(scopes)
+               .WithClaims(ex.Claims)
+               .ExecuteAsync();
+            }
+
+            WriteTrace("OAuth access token acquired successfully!");
+
+            return result.AccessToken;
         }
         #endregion
     }

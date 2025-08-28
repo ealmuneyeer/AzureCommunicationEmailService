@@ -205,5 +205,26 @@ namespace AzureCommunicationEmailService
         {
             get { return _config[AppConfigKeys.SERVICE_BUS_QUEUE_NAME]; }
         }
+
+        public bool UseOAuth2
+        {
+            get
+            {
+                bool useOAuth2;
+                bool.TryParse(_config[AppConfigKeys.USE_OAUTH2], out useOAuth2);
+                return useOAuth2;
+            }
+        }
+
+        public bool AutoRetryOn429
+        {
+            get
+            {
+                bool autoRetryOn429;
+                bool.TryParse(_config[AppConfigKeys.AUTO_RETRY_ON_429], out autoRetryOn429);
+                return autoRetryOn429;
+            }
+        }
+
     }
 }
